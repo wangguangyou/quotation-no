@@ -9,14 +9,31 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@unocss/reset": "^0.51.4",
+    "antd": "^5.4.2",
+    "next": "13.3.0",
+    "ofetch": "^1.0.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "swr": "^2.1.3",
+    "valtio": "^1.10.4"
+  },
+  "devDependencies": {
     "@types/node": "18.15.11",
     "@types/react": "18.0.34",
     "@types/react-dom": "18.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.58.0",
+    "@unocss/postcss": "^0.51.4",
+    "@unocss/preset-rem-to-px": "^0.51.4",
     "eslint": "8.38.0",
     "eslint-config-next": "13.3.0",
-    "next": "13.3.0",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "typescript": "5.0.4"
+    "eslint-config-prettier": "^8.8.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.7",
+    "typescript": "5.0.4",
+    "unocss": "^0.51.4"
+  },
+  "volta": {
+    "node": "16.20.0"
   }
 }
