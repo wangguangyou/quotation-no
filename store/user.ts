@@ -6,9 +6,9 @@ type User = {
   account: string
   name: string
   id: number
-} | null
+}
 class State {
-  user!: Partial<User>
+  user: Partial<User> = { id: 1 }
   menu: MenuItem[] = [
     {
       key: 1,

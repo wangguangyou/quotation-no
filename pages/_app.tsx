@@ -1,5 +1,5 @@
 import '@/styles/globals.css'
-import '@unocss/reset/tailwind.css'
+import '@unocss/reset/normalize.css'
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 

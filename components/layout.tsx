@@ -16,7 +16,7 @@ type Props = {
 const Layout = ({ children, noLayout }: Props) => {
   const onLoginout = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
-    userState.user = null
+    userState.user = {}
     router.replace('/login')
   }
   const items: MenuProps['items'] = [
@@ -25,7 +25,7 @@ const Layout = ({ children, noLayout }: Props) => {
       label: <a onClick={onLoginout}>退出登录</a>,
     },
   ]
-  const user = useSnapshot(userState.user || {})
+  const user = useSnapshot(userState.user)
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   useEffect(() => {

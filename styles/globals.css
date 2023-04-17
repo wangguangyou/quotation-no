@@ -1,1 +1,15 @@
 @unocss all;
+
+:root {
+  --shadows-login: 0px 5px 15px -3px rgba(0, 0, 0, 0.1);
+  --un-backdrop-blur: blur(2px)
+}
+
+html, body, div, span {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
