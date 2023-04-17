@@ -1,5 +1,9 @@
 import { Divider } from 'antd'
 
 export default function Home() {
-  return Divider
+  return (
+    <div>
+      <Divider></Divider>
+    </div>
+  )
 }

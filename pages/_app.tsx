@@ -28,9 +28,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       <ConfigProvider
         locale={zhCN}
         theme={{
-          token: {
-            colorPrimary: '#52c41a',
-          },
+          token: {},
         }}
       >
         <Layout noLayout={Component.noLayout}>

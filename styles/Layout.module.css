@@ -1,0 +1,26 @@
+.header {
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.headerTitle {
+  color: #fff;
+  font-size: 0;
+}
+.headerRight {
+  display: flex;
+  align-items: center;
+  padding:0 12px;
+}
+.headerRight:hover {
+  background: #252a3d;
+}
+.headerRightAvatar {
+  background: #fff;
+  color: inherit;
+}
+.headerRightText {
+  color: #fff;
+  margin-left: 8px;
+}
