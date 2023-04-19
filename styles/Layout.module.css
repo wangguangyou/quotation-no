@@ -12,6 +12,7 @@
   display: flex;
   align-items: center;
   padding:0 12px;
+  user-select:none
 }
 .headerRight:hover {
   background: #252a3d;

@@ -14,33 +14,40 @@ type Props = {
   noLayout?: boolean
 }
 const Layout = ({ children, noLayout }: Props) => {
+  const state = useSnapshot(userState)
   const onLoginout = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
-    userState.user = {}
+    userState.user = null
     router.replace('/login')
+  }
+  const onUserInfo = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault()
+    router.replace('/info')
   }
   const items: MenuProps['items'] = [
     {
       key: '1',
+      label: <a onClick={onUserInfo}>个人信息</a>,
+    },
+    {
+      key: '2',
       label: <a onClick={onLoginout}>退出登录</a>,
     },
   ]
-  const user = useSnapshot(userState.user)
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   useEffect(() => {
-    if (!(router.asPath === '/login' || user.token)) {
-      router.replace('/login').then(() => {
-        setTimeout(() => {
-          setLoading(false)
-        }, 0)
-      })
-    } else {
-      setLoading(false)
+    if (router.asPath === '/login' && state.user) {
+      router.replace('/')
     }
-  }, [router, user.token])
+    if (router.asPath !== '/login' && !state.user) {
+      router.replace('/login')
+    } else {
+      router.isReady && setLoading(false)
+    }
+  }, [router, state.user])
 
-  if (user.token) {
+  if (state.user) {
     if (false) {
       return (
         <div style={{ textAlign: 'center' }}>
@@ -65,9 +72,11 @@ const Layout = ({ children, noLayout }: Props) => {
           <Dropdown menu={{ items }}>
             <div className={styles.headerRight}>
               <Avatar className={styles.headerRightAvatar}>
-                {user.username?.charAt(0)}
+                {state.user?.username?.charAt(0)}
               </Avatar>
-              <div className={styles.headerRightText}>{user.nickname}</div>
+              <div className={styles.headerRightText}>
+                {state.user?.nickname}
+              </div>
             </div>
           </Dropdown>
         </Header>
@@ -80,7 +89,7 @@ const Layout = ({ children, noLayout }: Props) => {
               items={userState.showMenu}
             />
           </Sider>
-          <Content>{children}</Content>
+          <Content style={{ padding: '24px' }}>{children}</Content>
         </ALayout>
       </ALayout>
     )

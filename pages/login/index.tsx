@@ -1,15 +1,15 @@
 import type { NextPageWithLayout } from '../_app'
-import { Form, Input, Button, message } from 'antd'
+import { Form, Input, Button } from 'antd'
 import Granim from 'granim'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import userState from '@/store/user'
+import { useRouter } from 'next/router'
 import { getLogin } from '@/api'
 
 const Login: NextPageWithLayout = () => {
-  const [messageApi, contextHolder] = message.useMessage()
-
   const [form] = Form.useForm()
   const Canvas = useRef(null)
+  const router = useRouter()
   useEffect(() => {
     new Granim({
       element: Canvas.current,
@@ -19,7 +19,8 @@ const Login: NextPageWithLayout = () => {
       states: {
         'default-state': {
           gradients: [
-            ['#24C6DC', 'rgba(81, 74, 157, .4)'],
+            ['rgba(255,255,255,.4)', 'rgba(0, 0, 0, .4)'],
+            ['rgba(36, 198, 220, .4)', 'rgba(81, 74, 157, .4)'],
             ['rgba(9,90,155,.4)', 'rgba(14,141,159,.4)'],
           ],
         },
@@ -29,11 +30,11 @@ const Login: NextPageWithLayout = () => {
   const onFinish = async (values: any) => {
     const { data } = await getLogin(values)
     userState.user = data
+    router.push('/')
   }
 
   return (
     <>
-      {contextHolder}
       <div className="bg-#f1f3f4 h-100vh relative overflow-hidden">
         <canvas className="absoulte h-full w-full" ref={Canvas}></canvas>
         <main className="p-c h-400 w-700 px-30 py-60 bg-white rd-8 shadow-[var(--shadows-login)]">
