@@ -4,6 +4,7 @@ import type { SearchParameters } from 'ofetch'
 
 const fetch = ofetch.create({
   baseURL: process.env.NEXT_PUBLIC_BASEURL,
+  retry: 0,
   async onRequest({ request, options }) {
     options.headers = Object.assign(options.headers || {}, { token: '' })
   },
@@ -11,7 +12,15 @@ const fetch = ofetch.create({
     response._data.message && message.error(response._data.message)
   },
   async onResponse({ request, response, options }) {
-    response._data.message && message.success(response._data.message)
+    if (response._data.message) {
+      message.destroy()
+      if (response._data.status) {
+        message.success(response._data.message, 1)
+      } else {
+        message.warning(response._data.message, 1.5)
+        return Promise.reject()
+      }
+    }
   },
 })
 

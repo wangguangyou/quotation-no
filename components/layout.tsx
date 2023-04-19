@@ -29,7 +29,7 @@ const Layout = ({ children, noLayout }: Props) => {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   useEffect(() => {
-    if (!(router.asPath === '/login' || user.id)) {
+    if (!(router.asPath === '/login' || user.token)) {
       router.replace('/login').then(() => {
         setTimeout(() => {
           setLoading(false)
@@ -38,9 +38,9 @@ const Layout = ({ children, noLayout }: Props) => {
     } else {
       setLoading(false)
     }
-  }, [router, user.id])
+  }, [router, user.token])
 
-  if (user.id) {
+  if (user.token) {
     if (false) {
       return (
         <div style={{ textAlign: 'center' }}>
@@ -65,9 +65,9 @@ const Layout = ({ children, noLayout }: Props) => {
           <Dropdown menu={{ items }}>
             <div className={styles.headerRight}>
               <Avatar className={styles.headerRightAvatar}>
-                {user.account?.charAt(0)}
+                {user.username?.charAt(0)}
               </Avatar>
-              <div className={styles.headerRightText}>{user.name}</div>
+              <div className={styles.headerRightText}>{user.nickname}</div>
             </div>
           </Dropdown>
         </Header>

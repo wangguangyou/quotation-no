@@ -2,7 +2,7 @@ import '@/styles/globals.css'
 import '@unocss/reset/normalize.css'
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
-
+import { SWRConfig } from 'swr'
 import Head from 'next/head'
 import Layout from '@/components/layout'
 import type { AppProps } from 'next/app'
@@ -31,9 +31,13 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
           token: {},
         }}
       >
-        <Layout noLayout={Component.noLayout}>
-          <Component {...pageProps} />
-        </Layout>
+        <SWRConfig
+          value={{ shouldRetryOnError: false, revalidateOnFocus: false }}
+        >
+          <Layout noLayout={Component.noLayout}>
+            <Component {...pageProps} />
+          </Layout>
+        </SWRConfig>
       </ConfigProvider>
     </>
   )

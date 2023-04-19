@@ -3,12 +3,14 @@ import type { MenuProps } from 'antd'
 type MenuItem = Required<MenuProps>['items'][number]
 
 type User = {
-  account: string
-  name: string
-  id: number
+  username: string
+  nickname: string
+  token: string
+  tokenExpire: number
+  rlPages: any[]
 }
 class State {
-  user: Partial<User> = { id: 1 }
+  user: Partial<User> = {}
   menu: MenuItem[] = [
     {
       key: 1,
