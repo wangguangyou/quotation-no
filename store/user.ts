@@ -21,7 +21,7 @@ type Store = {
   user: Promise<User | null> | User | null
   menu: MenuItem[]
   showMenu: MenuItem[]
-  token?: string
+  // token: string | null
 }
 const auth = async (): Promise<User | null> => {
   if (typeof window !== 'undefined') {
@@ -39,21 +39,26 @@ class State {
       key: 1,
       label: '明细',
     },
+    {
+      key: 2,
+      label: '用户管理',
+      code: 'user_manager',
+    },
   ]
   get showMenu() {
-    return this.menu
-  }
-  get token() {
-    if (this.user instanceof Promise) {
-      return null
-    } else {
-      return (this.user as User)?.token
+    const map: Record<string, string> = {
+      user_manager: '/user',
+      print_method_manager: '/',
     }
+
+    return this.menu.map((item) => ({
+      key: map[item.code!] || '/',
+      label: item.label,
+    }))
   }
 }
 const state = proxy<Store>(new State())
 subscribeKey(state, 'user', () => {
-  console.log(12, state.user)
   localStorage.setItem('user', JSON.stringify(state.user))
 })
 

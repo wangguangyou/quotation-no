@@ -24,11 +24,14 @@ const Layout = ({ children, noLayout }: Props) => {
     event.preventDefault()
     router.replace('/info')
   }
+  const onMenuSelect: MenuProps['onSelect'] = ({ key }) => {
+    router.push(key)
+  }
   const items: MenuProps['items'] = [
-    {
-      key: '1',
-      label: <a onClick={onUserInfo}>个人信息</a>,
-    },
+    // {
+    //   key: '1',
+    //   label: <a onClick={onUserInfo}>个人信息</a>,
+    // },
     {
       key: '2',
       label: <a onClick={onLoginout}>退出登录</a>,
@@ -37,10 +40,11 @@ const Layout = ({ children, noLayout }: Props) => {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   useEffect(() => {
-    if (router.asPath === '/login' && state.user) {
+    console.log(router)
+    if (router.pathname === '/login' && state.user) {
       router.replace('/')
     }
-    if (router.asPath !== '/login' && !state.user) {
+    if (router.pathname !== '/login' && !state.user) {
       router.replace('/login')
     } else {
       router.isReady && setLoading(false)
@@ -83,8 +87,9 @@ const Layout = ({ children, noLayout }: Props) => {
         <ALayout>
           <Sider theme="light" style={{ paddingTop: '1em' }}>
             <Menu
+              onSelect={onMenuSelect}
               style={{ height: '100%', borderRight: 0 }}
-              defaultSelectedKeys={['1']}
+              defaultSelectedKeys={[router.pathname]}
               defaultOpenKeys={['sub1']}
               items={userState.showMenu}
             />
