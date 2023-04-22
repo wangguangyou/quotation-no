@@ -1,5 +1,7 @@
 import type { NextPage } from 'next'
-import { Card, Form, Input, Button, Table, Tag, Popconfirm } from 'antd'
+import type { Role } from '@/types'
+import { Card, Form, Input, Button, Table, Tag, Popconfirm, Modal } from 'antd'
+import UserForm from '@/components/user/form'
 import {
   getUserList,
   getRoleList,
@@ -16,16 +18,17 @@ interface DataType {
   nickname: string
   createTime: string
   isDelete: boolean
-  roleList: Role[]
+  roleList: _Role[]
 }
-interface Role {
+interface _Role {
   id: number
   roleName: string
   createTime: string
   userId: number
 }
-
 const User: NextPage = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [currentUser, setCurrentUser] = useState<DataType>()
   const [data, setData] = useState<DataType[]>([])
   const [allRoleList, setRoleList] = useState<Role[]>([])
   const [loading, setLoading] = useState(true)
@@ -37,8 +40,8 @@ const User: NextPage = () => {
   })
 
   const onFinish = (values: any) => {
-    setQuery(values)
-    init()
+    setPagination((val) => Object.assign(val, { current: 1 }))
+    init(values)
   }
   const handleDelete = async (record: DataType) => {
     await delUser(record.id)
@@ -53,12 +56,12 @@ const User: NextPage = () => {
     checked: boolean,
     record: DataType
   ) => {
-    ;(await checked)
-      ? roleRlUser(id, { userId: record.id })
-      : delRoleRlUser(id, { userId: record.id })
+    checked
+      ? await roleRlUser(id, { userId: record.id })
+      : await delRoleRlUser(id, { userId: record.id })
     init()
   }
-  const init = async () => {
+  const init = async (query?: any) => {
     setLoading(true)
     const {
       data: { list, total },
@@ -74,18 +77,35 @@ const User: NextPage = () => {
     setLoading(false)
   }
   const initRoleList = async () => {
-    const { data } = await getRoleList({})
+    const { data } = await getRoleList()
     setRoleList(data)
   }
   useEffect(() => {
     initRoleList()
     init()
   }, [])
+
+  const addUser = () => {
+    setCurrentUser(undefined)
+    setIsModalOpen(true)
+  }
+  const editUser = (record: DataType) => {
+    setCurrentUser(record)
+    setIsModalOpen(true)
+  }
+
+  const handleCancel = () => {
+    setIsModalOpen(false)
+  }
+  const onAction = () => {
+    init()
+    setIsModalOpen(false)
+  }
   return (
     <>
       <Card bordered={false}>
         <Form layout="inline" onFinish={onFinish} autoComplete="off">
-          <Form.Item label="用户名" name="name">
+          <Form.Item label="关键字" name="name">
             <Input />
           </Form.Item>
 
@@ -99,7 +119,9 @@ const User: NextPage = () => {
 
       <Card className="mt-24" bordered={false}>
         <div className="mb-16">
-          <Button type="primary">新增用户</Button>
+          <Button onClick={addUser} type="primary">
+            新增用户
+          </Button>
         </div>
         <Table
           onChange={onChange}
@@ -110,6 +132,7 @@ const User: NextPage = () => {
           dataSource={data}
         >
           <Table.Column title="用户名" dataIndex="username" key="username" />
+          <Table.Column title="名称" dataIndex="nickname" key="nickname" />
           <Table.Column
             render={(roleList, record: DataType) => (
               <>
@@ -140,8 +163,10 @@ const User: NextPage = () => {
           <Table.Column
             title="操作"
             key="action"
+            width={120}
             render={(_: any, record: DataType) => (
               <div className="space-x-12">
+                <a onClick={() => editUser(record)}>修改</a>
                 <Popconfirm
                   title={`确定删除 ${record.username} ?`}
                   onConfirm={() => handleDelete(record)}
@@ -153,6 +178,18 @@ const User: NextPage = () => {
           />
         </Table>
       </Card>
+
+      <Modal
+        title={currentUser ? '修改用户' : '新增用户'}
+        destroyOnClose
+        open={isModalOpen}
+        footer={null}
+        centered
+        width={380}
+        onCancel={handleCancel}
+      >
+        <UserForm data={currentUser} onSubmit={onAction}></UserForm>
+      </Modal>
     </>
   )
 }

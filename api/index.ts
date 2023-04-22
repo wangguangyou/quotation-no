@@ -1,7 +1,5 @@
 import { GET, POST, PUT, DELETE } from './_config'
 
-import type { LoginParams } from './types'
-
 export const getLogin = (data: any) => POST('/user/login', data)
 
 export const getRlPage = (data: any) => GET('/user/rl/page', data)
@@ -39,6 +37,6 @@ export const roleRlPage = (id: number, data: { pageIds: number[] }) =>
 export const delRoleRlPage = (id: number, data: { pageIds: number[] }) =>
   DELETE(`/role/rl/page/${id}`, data)
 
-export const getRoleList = (data: any) => GET(`/role/list`, data)
+export const getRoleList = (data?: any) => GET(`/role/list`, data)
 
-export const getCurrentPageList = (data: any) => GET(`/page/list`, data)
+export const getPageList = (data?: any) => GET(`/page/list`, data)

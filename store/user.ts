@@ -1,14 +1,8 @@
 import { proxy, subscribe } from 'valtio'
 import { subscribeKey } from 'valtio/utils'
 import type { MenuProps } from 'antd'
+import type { RLPAGE } from '@/types'
 type MenuItem = Required<MenuProps>['items'][number]
-
-type RLPAGE = {
-  id: number
-  pageName: string
-  pageCode: string
-  createTime: string
-}
 
 type User = {
   username: string
@@ -44,10 +38,16 @@ class State {
       label: '用户管理',
       code: 'user_manager',
     },
+    {
+      key: 3,
+      label: '权限管理',
+      code: 'auth_manager',
+    },
   ]
   get showMenu() {
     const map: Record<string, string> = {
       user_manager: '/user',
+      auth_manager: '/auth',
       print_method_manager: '/',
     }
 

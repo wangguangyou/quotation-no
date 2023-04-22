@@ -23,9 +23,9 @@ const fetch = ofetch.create({
     if (response._data.message) {
       message.destroy()
       if (response._data.status) {
-        message.success(response._data.message, 1)
+        message.success(response._data.message, 1.5)
       } else {
-        message.warning(response._data.message, 1.5)
+        message.warning(response._data.message, 2)
         return Promise.reject()
       }
     }
@@ -52,6 +52,6 @@ export const PUT = (
 
 export const DELETE = (
   resource: RequestInfo,
-  body: SearchParameters,
+  params: SearchParameters,
   config?: RequestInit
-) => fetch(resource, { method: 'delete', body, ...config })
+) => fetch(resource, { method: 'delete', params, ...config })

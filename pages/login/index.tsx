@@ -7,7 +7,6 @@ import { useRouter } from 'next/router'
 import { getLogin } from '@/api'
 
 const Login: NextPageWithLayout = () => {
-  const [form] = Form.useForm()
   const Canvas = useRef(null)
   const router = useRouter()
   useEffect(() => {
@@ -49,18 +48,17 @@ const Login: NextPageWithLayout = () => {
               onFinish={onFinish}
               className="mt-30 text-left"
               layout="vertical"
-              form={form}
               style={{ maxWidth: 300 }}
             >
               <Form.Item
-                label="username"
+                label="用户名"
                 name="username"
                 rules={[{ required: true, message: '请输入用户名' }]}
               >
                 <Input size="large" placeholder="请输入用户名" />
               </Form.Item>
               <Form.Item
-                label="password"
+                label="密码"
                 name="password"
                 rules={[{ required: true, message: '请输入密码' }]}
               >
