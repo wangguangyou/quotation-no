@@ -16,7 +16,6 @@ export const editPassword = (data: any) => PUT(`/user/edit/password`, data)
 export const editUserInfo = (data: any) => PUT(`/user/edit/info`, data)
 
 export const getUserList = (data: any) => GET(`/user/page`, data)
-//?page=1&size=10&name=管理员
 
 export const createRole = (data: any) => POST('/role/create', data)
 

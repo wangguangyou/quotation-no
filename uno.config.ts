@@ -16,6 +16,5 @@ export default defineConfig({
     ['fcc', 'flex items-center justify-center'],
     ['fbc', 'flex justify-between items-center'],
     ['p-c', 'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'],
-    ['shadow-login', '[0px 10px 15px -3px rgba(0,0,0,0.1)]'],
   ],
 })

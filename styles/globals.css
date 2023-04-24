@@ -2,10 +2,13 @@
 
 :root {
   --shadows-login: 0px 5px 15px -3px rgba(0, 0, 0, 0.1);
-  --un-backdrop-blur: blur(2px)
+  --un-backdrop-blur: blur(2px);
 }
 
-html, body, div, span {
+html,
+body,
+div,
+span {
   margin: 0;
   padding: 0;
   border: 0;
@@ -13,3 +16,31 @@ html, body, div, span {
   font: inherit;
   vertical-align: baseline;
 }
+.linear-text {
+  background: linear-gradient(90deg, #0caefb, #0576f6);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.divider {
+  position: relative;
+}
+.divider::after {
+  content: '';
+  height: 4px;
+  position: absolute;
+  bottom: 0;
+  left:0;
+  width: 100%;
+  background: linear-gradient(
+    270deg,
+    rgba(133, 156, 183, 0),
+    rgba(133, 156, 183, 0.2) 31%,
+    rgba(133, 156, 183, 0.2) 66%,
+    rgba(133, 156, 183, 0)
+
+  );
+}
+

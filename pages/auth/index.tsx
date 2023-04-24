@@ -1,7 +1,7 @@
 import type { NextPage } from 'next'
-import { getRoleList, getPageList } from '@/api'
+import { getRoleList, getPageList, roleRlPage, delRoleRlPage } from '@/api'
 import type { Role, RLPAGE } from '@/types'
-
+import FadeIn from '@/components/FadeIn'
 import { Card, Form, Input, Button, Table, Tag, Modal } from 'antd'
 import { useEffect, useState } from 'react'
 
@@ -17,30 +17,51 @@ const Auth: NextPage = () => {
     const { data } = await getRoleList()
     setRoleList(data)
   }
+  const onRlPageChange = async (
+    roleId: number,
+    checked: boolean,
+    pageId: number,
+    rlPageList: RLPAGE[]
+  ) => {
+    const rlPageIds = rlPageList.map((item) => item.id)
+    const pageIds = checked
+      ? [...rlPageIds, pageId]
+      : rlPageIds.filter((id) => id !== pageId)
+
+    await roleRlPage(roleId, { pageIds })
+    initRoleList()
+  }
   useEffect(() => {
     initPageList()
     initRoleList()
   }, [])
 
   return (
-    <Card bordered={false}>
-      <div className="space-y-24">
-        {allRoleList.map(({ id, roleName, rlPageList }) => (
-          <div key={id}>
-            <div className="mb-8">{roleName}</div>
-            {allPageList.map(({ id, pageCode, pageName }) => (
-              <Tag.CheckableTag
-                checked={!!rlPageList?.find((find: RLPAGE) => find.id === id)}
-                // onChange={(checked) => onRoleChange(id, checked, record)}
-                key={id}
-              >
-                {pageName}
-              </Tag.CheckableTag>
-            ))}
-          </div>
-        ))}
-      </div>
-    </Card>
+    <FadeIn>
+      <Card bordered={false}>
+        {/* <div className="linear-text shadow-login inline-block text-20 fw-600 mb-12">
+        页面权限
+      </div> */}
+        <div className="space-y-24">
+          {allRoleList.map(({ id: roleId, roleName, rlPageList }) => (
+            <div key={roleId}>
+              <div className="mb-8">{roleName}</div>
+              {allPageList.map(({ id, pageCode, pageName }) => (
+                <Tag.CheckableTag
+                  checked={!!rlPageList?.find((find: RLPAGE) => find.id === id)}
+                  onChange={(checked) =>
+                    onRlPageChange(roleId, checked, id, rlPageList)
+                  }
+                  key={id}
+                >
+                  {pageName}
+                </Tag.CheckableTag>
+              ))}
+            </div>
+          ))}
+        </div>
+      </Card>
+    </FadeIn>
   )
 }
 export default Auth

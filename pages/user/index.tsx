@@ -2,6 +2,7 @@ import type { NextPage } from 'next'
 import type { Role } from '@/types'
 import { Card, Form, Input, Button, Table, Tag, Popconfirm, Modal } from 'antd'
 import UserForm from '@/components/user/form'
+import FadeIn from '@/components/FadeIn'
 import {
   getUserList,
   getRoleList,
@@ -103,82 +104,82 @@ const User: NextPage = () => {
   }
   return (
     <>
-      <Card bordered={false}>
-        <Form layout="inline" onFinish={onFinish} autoComplete="off">
-          <Form.Item label="关键字" name="name">
-            <Input />
-          </Form.Item>
+      <FadeIn>
+        <Card bordered={false}>
+          <Form layout="inline" onFinish={onFinish} autoComplete="off">
+            <Form.Item label="关键字" name="name">
+              <Input />
+            </Form.Item>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit">
-              查询
+            <Form.Item>
+              <Button type="primary" htmlType="submit">
+                查询
+              </Button>
+            </Form.Item>
+          </Form>
+        </Card>
+        <Card className="mt-24" bordered={false}>
+          <div className="mb-16">
+            <Button onClick={addUser} type="primary">
+              新增用户
             </Button>
-          </Form.Item>
-        </Form>
-      </Card>
+          </div>
+          <Table
+            onChange={onChange}
+            pagination={pagination}
+            bordered
+            rowKey="id"
+            loading={loading}
+            dataSource={data}
+          >
+            <Table.Column title="用户名" dataIndex="username" key="username" />
+            <Table.Column title="名称" dataIndex="nickname" key="nickname" />
+            <Table.Column
+              render={(roleList, record: DataType) => (
+                <>
+                  {allRoleList.map(({ id, roleName }) => (
+                    <Tag.CheckableTag
+                      checked={!!roleList?.find((find: Role) => find.id === id)}
+                      onChange={(checked) => onRoleChange(id, checked, record)}
+                      key={id}
+                    >
+                      {roleName}
+                    </Tag.CheckableTag>
+                  ))}
+                </>
+              )}
+              title="角色"
+              dataIndex="roleList"
+              key="roleList"
+            />
+            <Table.Column
+              title="创建时间"
+              dataIndex="createTime"
+              key="createTime"
+              render={(createTime) => (
+                <div>{dayjs(createTime).format('YYYY-MM-DD HH:mm:ss')}</div>
+              )}
+            />
 
-      <Card className="mt-24" bordered={false}>
-        <div className="mb-16">
-          <Button onClick={addUser} type="primary">
-            新增用户
-          </Button>
-        </div>
-        <Table
-          onChange={onChange}
-          pagination={pagination}
-          bordered
-          rowKey="id"
-          loading={loading}
-          dataSource={data}
-        >
-          <Table.Column title="用户名" dataIndex="username" key="username" />
-          <Table.Column title="名称" dataIndex="nickname" key="nickname" />
-          <Table.Column
-            render={(roleList, record: DataType) => (
-              <>
-                {allRoleList.map(({ id, roleName }) => (
-                  <Tag.CheckableTag
-                    checked={!!roleList?.find((find: Role) => find.id === id)}
-                    onChange={(checked) => onRoleChange(id, checked, record)}
-                    key={id}
+            <Table.Column
+              title="操作"
+              key="action"
+              width={120}
+              render={(_: any, record: DataType) => (
+                <div className="space-x-12">
+                  <a onClick={() => editUser(record)}>修改</a>
+                  <Popconfirm
+                    title={`确定删除 ${record.username} ?`}
+                    onConfirm={() => handleDelete(record)}
                   >
-                    {roleName}
-                  </Tag.CheckableTag>
-                ))}
-              </>
-            )}
-            title="角色"
-            dataIndex="roleList"
-            key="roleList"
-          />
-          <Table.Column
-            title="创建时间"
-            dataIndex="createTime"
-            key="createTime"
-            render={(createTime) => (
-              <div>{dayjs(createTime).format('YYYY-MM-DD HH:mm:ss')}</div>
-            )}
-          />
-
-          <Table.Column
-            title="操作"
-            key="action"
-            width={120}
-            render={(_: any, record: DataType) => (
-              <div className="space-x-12">
-                <a onClick={() => editUser(record)}>修改</a>
-                <Popconfirm
-                  title={`确定删除 ${record.username} ?`}
-                  onConfirm={() => handleDelete(record)}
-                >
-                  <a>删除</a>
-                </Popconfirm>
-              </div>
-            )}
-          />
-        </Table>
-      </Card>
-
+                    <a>删除</a>
+                  </Popconfirm>
+                </div>
+              )}
+            />
+          </Table>
+        </Card>
+      </FadeIn>
       <Modal
         title={currentUser ? '修改用户' : '新增用户'}
         destroyOnClose

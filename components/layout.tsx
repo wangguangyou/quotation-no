@@ -9,6 +9,7 @@ const { Header, Sider, Content } = ALayout
 import Image from 'next/image'
 import png403 from '@/assets/403.svg'
 import { useSnapshot } from 'valtio'
+
 type Props = {
   children: ReactNode
   noLayout?: boolean
@@ -17,9 +18,10 @@ const Layout = ({ children, noLayout }: Props) => {
   const state = useSnapshot(userState)
   const onLoginout = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
+    router.push('/login')
     userState.user = null
-    router.replace('/login')
   }
+
   const onUserInfo = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
     router.replace('/info')
@@ -40,7 +42,6 @@ const Layout = ({ children, noLayout }: Props) => {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   useEffect(() => {
-    console.log(router)
     if (router.pathname === '/login' && state.user) {
       router.replace('/')
     }
@@ -73,16 +74,18 @@ const Layout = ({ children, noLayout }: Props) => {
       <ALayout style={{ minHeight: '100vh' }}>
         <Header className={styles.header}>
           <div className={styles.headerTitle}>宁波品印智能报价软件</div>
-          <Dropdown menu={{ items }}>
-            <div className={styles.headerRight}>
-              <Avatar className={styles.headerRightAvatar}>
-                {state.user?.username?.charAt(0)}
-              </Avatar>
-              <div className={styles.headerRightText}>
-                {state.user?.nickname}
+          {state.user && (
+            <Dropdown menu={{ items }}>
+              <div className={styles.headerRight}>
+                <Avatar className={styles.headerRightAvatar}>
+                  {state.user?.username?.charAt(0)}
+                </Avatar>
+                <div className={styles.headerRightText}>
+                  {state.user?.nickname}
+                </div>
               </div>
-            </div>
-          </Dropdown>
+            </Dropdown>
+          )}
         </Header>
         <ALayout>
           <Sider theme="light" style={{ paddingTop: '1em' }}>
