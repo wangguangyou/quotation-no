@@ -29,17 +29,15 @@ span {
 }
 .divider::after {
   content: '';
-  height: 4px;
+  height: 2px;
   position: absolute;
   bottom: 0;
   left:0;
   width: 100%;
   background: linear-gradient(
-    270deg,
-    rgba(133, 156, 183, 0),
-    rgba(133, 156, 183, 0.2) 31%,
-    rgba(133, 156, 183, 0.2) 66%,
-    rgba(133, 156, 183, 0)
+    to right,
+    rgba(133, 156, 183, .12),
+    rgba(133, 156, 183, .04)
 
   );
 }
