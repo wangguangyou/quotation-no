@@ -1,6 +1,6 @@
 import { Form, Input, Button, InputNumber, Select, Switch } from 'antd'
-import { useEffect, useRef } from 'react'
-
+import { useEffect, useState } from 'react'
+import Excel from '@/components/no/Excel'
 const MainForm = ({ data }: { data?: any }) => {
   const [form] = Form.useForm()
   useEffect(() => {
@@ -172,6 +172,7 @@ const MainForm = ({ data }: { data?: any }) => {
               </div>
 
               <div className="text-#666 text-16 mb-12">辅料明细</div>
+              <Excel></Excel>
             </div>
           </div>
 

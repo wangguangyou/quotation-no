@@ -7,14 +7,9 @@
 
 html,
 body,
-div,
-span {
+margin {
   margin: 0;
   padding: 0;
-  border: 0;
-  font-size: 100%;
-  font: inherit;
-  vertical-align: baseline;
 }
 
 body {
@@ -67,3 +62,20 @@ input::placeholder,
 .ant-select-selection-placeholder {
   opacity: 0.5;
 }
+.editable-cell {
+  position: relative;
+}
+
+.editable-cell-value-wrap {
+  padding: 5px 12px;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+/* .editable-row:hover .editable-cell-value-wrap {
+  padding: 4px 11px;
+  padding: 5px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+} */
