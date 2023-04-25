@@ -3,10 +3,13 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding:0 16px;
 }
 .headerTitle {
   color: #fff;
-  font-size: 0;
+  display: flex;
+  align-items: center;
+  font-size:18px;
 }
 .headerRight {
   display: flex;

@@ -1,13 +1,15 @@
 import { Form, Input, Button, InputNumber, Select, Switch } from 'antd'
+import { useEffect, useRef } from 'react'
 
-const MainForm = () => {
-  const onFinish = async (values: any) => {
-    //
-  }
+const MainForm = ({ data }: { data?: any }) => {
+  const [form] = Form.useForm()
+  useEffect(() => {
+    form.setFieldsValue({})
+  }, [data])
 
   return (
     <div className="relative">
-      <Form onFinish={onFinish}>
+      <Form form={form}>
         <div className="pb-130 space-y-32">
           <div>
             <div className="divider mb-32">
@@ -20,7 +22,7 @@ const MainForm = () => {
               labelCol={{ span: 3 }}
               label="客户信息"
               name="name"
-              rules={[{ required: true, message: '此项必填' }]}
+              rules={[{ required: true }]}
             >
               <Input className="w-300" placeholder="旺旺、微信、客户名称等" />
             </Form.Item>
@@ -28,7 +30,7 @@ const MainForm = () => {
               labelCol={{ span: 3 }}
               label="客户精准定位"
               name="name"
-              rules={[{ required: true, message: '此项必填' }]}
+              rules={[{ required: true }]}
             >
               <Input className="w-300" placeholder="C店、外贸公司、商超等" />
             </Form.Item>
@@ -36,7 +38,7 @@ const MainForm = () => {
               labelCol={{ span: 3 }}
               label="客户价格"
               name="name"
-              rules={[{ required: true, message: '此项必填' }]}
+              rules={[{ required: true }]}
             >
               <Input
                 className="w-300"
@@ -58,7 +60,7 @@ const MainForm = () => {
                   labelCol={{ span: 7 }}
                   label="长(CM)"
                   name="l"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <InputNumber
                     min={0}
@@ -70,7 +72,7 @@ const MainForm = () => {
                   labelCol={{ span: 7 }}
                   label="宽(CM)"
                   name="w"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <InputNumber
                     min={0}
@@ -82,7 +84,7 @@ const MainForm = () => {
                   labelCol={{ span: 7 }}
                   label="厚(MM)"
                   name="h"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <InputNumber
                     min={0}
@@ -99,7 +101,7 @@ const MainForm = () => {
                 <Form.Item
                   label="订单数量"
                   name="sum"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <InputNumber
                     min={0}
@@ -111,7 +113,7 @@ const MainForm = () => {
                 <Form.Item
                   label="印刷方式"
                   name="ysfs"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <Select
                     placeholder="请选择"
@@ -122,7 +124,7 @@ const MainForm = () => {
                 <Form.Item
                   label="边缘处理方式"
                   name="byclfs"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <Select
                     placeholder="请选择"
@@ -148,7 +150,7 @@ const MainForm = () => {
                 <Form.Item
                   label="面料"
                   name="ysfs"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <Select
                     placeholder="请选择"
@@ -159,7 +161,7 @@ const MainForm = () => {
                 <Form.Item
                   label="底料"
                   name="byclfs"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <Select
                     placeholder="请选择"
@@ -187,7 +189,7 @@ const MainForm = () => {
                 <Form.Item
                   label="摆放方式"
                   name="ysfs"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <Select
                     placeholder="请选择"
@@ -203,7 +205,7 @@ const MainForm = () => {
                   labelCol={{ span: 7 }}
                   label="长(CM)"
                   name="l"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <InputNumber
                     min={0}
@@ -215,7 +217,7 @@ const MainForm = () => {
                   labelCol={{ span: 7 }}
                   label="宽(CM)"
                   name="w"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <InputNumber
                     min={0}
@@ -227,7 +229,7 @@ const MainForm = () => {
                   labelCol={{ span: 7 }}
                   label="厚(MM)"
                   name="h"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <InputNumber
                     min={0}
@@ -241,7 +243,7 @@ const MainForm = () => {
                   labelCol={{ span: 7 }}
                   label="整箱数量"
                   name="l"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <InputNumber
                     min={0}
@@ -253,7 +255,7 @@ const MainForm = () => {
                   labelCol={{ span: 7 }}
                   label="整箱毛重"
                   name="w"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <InputNumber
                     min={0}
@@ -265,7 +267,7 @@ const MainForm = () => {
                   labelCol={{ span: 7 }}
                   label="整箱体积"
                   name="h"
-                  rules={[{ required: true, message: '此项必填' }]}
+                  rules={[{ required: true }]}
                 >
                   <InputNumber
                     min={0}
@@ -288,7 +290,7 @@ const MainForm = () => {
               <Form.Item
                 label="运输方式"
                 name="ysfs"
-                rules={[{ required: true, message: '此项必填' }]}
+                rules={[{ required: true }]}
               >
                 <Select
                   placeholder="请选择"
@@ -299,7 +301,7 @@ const MainForm = () => {
               <Form.Item
                 label="运输付款方式"
                 name="byclfs"
-                rules={[{ required: true, message: '此项必填' }]}
+                rules={[{ required: true }]}
               >
                 <Select
                   placeholder="请选择"
@@ -310,7 +312,7 @@ const MainForm = () => {
               <Form.Item
                 label="运费"
                 name="byclfs"
-                rules={[{ required: true, message: '此项必填' }]}
+                rules={[{ required: true }]}
               >
                 <InputNumber
                   min={0}
@@ -328,10 +330,14 @@ const MainForm = () => {
               </div>
             </div>
             <div className="fi space-x-24">
-              <Form.Item label="增值税发票" name="byclfs">
+              <Form.Item
+                label="增值税发票"
+                name="byclfs"
+                valuePropName="checked"
+              >
                 <Switch />
               </Form.Item>
-              <Form.Item label="普通发票" name="byclfs">
+              <Form.Item label="普通发票" name="byclfs" valuePropName="checked">
                 <Switch />
               </Form.Item>
             </div>
@@ -347,7 +353,9 @@ const MainForm = () => {
           <span className="text-18 text-#888 mr-12 align-text-bottom">
             合计
           </span>
-          <span className="linear-text inline-block text-40 fw-600">12323</span>
+          <span className="linear-text inline-block text-40 fw-600">
+            {(12323).toLocaleString()}
+          </span>
 
           <div className="mt-16">
             <Button

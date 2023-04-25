@@ -1,11 +1,6 @@
 import type { NextPageWithLayout } from './_app'
 import { Card } from 'antd'
-import MainForm from '@/components/MainForm'
 const Home: NextPageWithLayout = () => {
-  return (
-    <Card bordered={false}>
-      <MainForm />{' '}
-    </Card>
-  )
+  return <Card bordered={false}>明细</Card>
 }
 export default Home

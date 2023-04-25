@@ -1,7 +1,7 @@
 import { ReactNode, useEffect, useState } from 'react'
 import type { MouseEvent } from 'react'
 import userState from '@/store/user'
-import { useRouter } from 'next/router'
+import { usePathname, useRouter } from 'next/navigation'
 import { Layout as ALayout, Menu, Avatar, Dropdown } from 'antd'
 import type { MenuProps } from 'antd'
 import styles from '@/styles/Layout.module.css'
@@ -16,6 +16,10 @@ type Props = {
 }
 const Layout = ({ children, noLayout }: Props) => {
   const state = useSnapshot(userState)
+  const pathname = usePathname()
+  const router = useRouter()
+  const [loading, setLoading] = useState(true)
+
   const onLoginout = (event: MouseEvent<HTMLAnchorElement>) => {
     event.preventDefault()
     router.push('/login')
@@ -39,16 +43,15 @@ const Layout = ({ children, noLayout }: Props) => {
       label: <a onClick={onLoginout}>退出登录</a>,
     },
   ]
-  const router = useRouter()
-  const [loading, setLoading] = useState(true)
+
   useEffect(() => {
-    if (router.pathname === '/login' && state.user) {
+    if (pathname === '/login' && state.user) {
       router.replace('/')
     }
-    if (router.pathname !== '/login' && !state.user) {
+    if (pathname !== '/login' && !state.user) {
       router.replace('/login')
     } else {
-      router.isReady && setLoading(false)
+      setLoading(false)
     }
   }, [router, state.user])
 
@@ -73,7 +76,16 @@ const Layout = ({ children, noLayout }: Props) => {
     ) : (
       <ALayout style={{ minHeight: '100vh' }}>
         <Header className={styles.header}>
-          <div className={styles.headerTitle}>宁波品印智能报价软件</div>
+          <div className={styles.headerTitle}>
+            <Image
+              src="/logo-white.svg"
+              alt="Logo"
+              width={60}
+              height={40}
+              priority
+            />
+            宁波品印智能报价软件
+          </div>
           {state.user && (
             <Dropdown menu={{ items }}>
               <div className={styles.headerRight}>
@@ -92,8 +104,8 @@ const Layout = ({ children, noLayout }: Props) => {
             <Menu
               onSelect={onMenuSelect}
               style={{ height: '100%', borderRight: 0 }}
-              defaultSelectedKeys={[router.pathname]}
-              defaultOpenKeys={['sub1']}
+              selectedKeys={[pathname]}
+              openKeys={[]}
               items={userState.showMenu}
             />
           </Sider>

@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && next export",
     "start": "next start",
     "lint": "next lint"
   },
@@ -12,7 +12,6 @@
     "@unocss/reset": "^0.51.4",
     "antd": "^5.4.2",
     "framer-motion": "^10.12.4",
-    "granim": "^2.0.0",
     "next": "13.3.0",
     "ofetch": "^1.0.1",
     "react": "18.2.0",

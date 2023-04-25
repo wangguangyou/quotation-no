@@ -35,27 +35,33 @@ class State {
     },
     {
       key: 2,
+      label: '报价单',
+      code: 'no',
+    },
+    {
+      key: 3,
       label: '报价单统计',
       code: 'list',
     },
     {
-      key: 3,
+      key: 4,
       label: '辅料管理',
       code: 'template',
     },
     {
-      key: 4,
+      key: 5,
       label: '用户管理',
       code: 'user_manager',
     },
     {
-      key: 5,
+      key: 6,
       label: '权限管理',
       code: 'auth_manager',
     },
   ]
   get showMenu() {
     const map: Record<string, string> = {
+      no: '/no',
       user_manager: '/user',
       list: '/list',
       template: '/template',

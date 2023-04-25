@@ -29,11 +29,7 @@ const UserForm = ({
         style={{ maxWidth: 300 }}
       >
         <div className="mt-40"></div>
-        <Form.Item
-          label="用户名"
-          name="username"
-          rules={[{ required: true, message: '请输入用户名' }]}
-        >
+        <Form.Item label="用户名" name="username" rules={[{ required: true }]}>
           <Input
             disabled={!!data}
             autoComplete="off"
@@ -41,18 +37,10 @@ const UserForm = ({
             placeholder="请输入用户名"
           />
         </Form.Item>
-        <Form.Item
-          label="名称"
-          name="nickname"
-          rules={[{ required: true, message: '请输入名称' }]}
-        >
+        <Form.Item label="名称" name="nickname" rules={[{ required: true }]}>
           <Input autoComplete="off" size="large" placeholder="请输入名称" />
         </Form.Item>
-        <Form.Item
-          label="密码"
-          name="password"
-          rules={[{ required: true, message: '请输入密码' }]}
-        >
+        <Form.Item label="密码" name="password" rules={[{ required: true }]}>
           <Input.Password
             autoComplete="new-password"
             size="large"
