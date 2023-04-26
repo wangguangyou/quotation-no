@@ -1,7 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  trailingSlash: false,
   transpilePackages: ['antd'],
+  images: {
+    loader: 'akamai',
+    path: '',
+  },
   async rewrites() {
     return [
       {

@@ -56,7 +56,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
   }, [editing])
 
   const toggleEdit = () => {
-    setEditing(!editing || true)
+    setEditing(!editing)
     form.setFieldsValue({ [dataIndex]: record[dataIndex] })
   }
 
