@@ -1,5 +1,4 @@
 import type { NextPage } from 'next'
-import type { Role } from '@/types'
 import { Card, Form, Input, Button, Table, Tag, Popconfirm, Modal } from 'antd'
 import MainForm from '@/components/MainForm'
 import FadeIn from '@/components/FadeIn'
@@ -11,29 +10,19 @@ import {
   delUser,
   delRoleRlUser,
 } from '@/api'
+import { unwrapResponse } from '@/api/types'
 import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
 
-interface DataType {
-  id: number
-  username: string
-  nickname: string
-  createTime: string
-  isDelete: boolean
-  roleList: _Role[]
-}
-interface _Role {
-  id: number
-  roleName: string
-  createTime: string
-  userId: number
-}
-const User: NextPage = () => {
+type User = unwrapResponse<typeof getUserList>[number]
+type Role = unwrapResponse<typeof getRoleList>[number]
+
+const UserPage: NextPage = () => {
   const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [currentUser, setCurrentUser] = useState<DataType>()
-  const [data, setData] = useState<DataType[]>([])
+  const [currentUser, setCurrentUser] = useState<User>()
+  const [data, setData] = useState<User[]>([])
   const [allRoleList, setRoleList] = useState<Role[]>([])
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState({ name: '' })
@@ -47,7 +36,7 @@ const User: NextPage = () => {
     setPagination((val) => Object.assign(val, { current: 1 }))
     init(values)
   }
-  const handleDelete = async (record: DataType) => {
+  const handleDelete = async (record: User) => {
     await delUser(record.id)
     init()
   }
@@ -55,11 +44,7 @@ const User: NextPage = () => {
     setPagination((val) => Object.assign(val, pagination))
     init()
   }
-  const onRoleChange = async (
-    id: number,
-    checked: boolean,
-    record: DataType
-  ) => {
+  const onRoleChange = async (id: number, checked: boolean, record: User) => {
     checked
       ? await roleRlUser(id, { userId: record.id })
       : await delRoleRlUser(id, { userId: record.id })
@@ -92,7 +77,7 @@ const User: NextPage = () => {
   const onAdd = () => {
     router.push('/no')
   }
-  const editUser = (record: DataType) => {
+  const editUser = (record: User) => {
     setCurrentUser(record)
     setIsModalOpen(true)
   }
@@ -139,7 +124,7 @@ const User: NextPage = () => {
             <Table.Column title="用户名" dataIndex="username" key="username" />
             <Table.Column title="名称" dataIndex="nickname" key="nickname" />
             <Table.Column
-              render={(roleList, record: DataType) => (
+              render={(roleList, record: User) => (
                 <>
                   {allRoleList.map(({ id, roleName }) => (
                     <Tag.CheckableTag
@@ -169,7 +154,7 @@ const User: NextPage = () => {
               title="操作"
               key="action"
               width={120}
-              render={(_: any, record: DataType) => (
+              render={(_: any, record: User) => (
                 <div className="space-x-12">
                   <AuthWrap auth="edit-no">
                     <a onClick={() => editUser(record)}>修改</a>
@@ -204,4 +189,4 @@ const User: NextPage = () => {
     </>
   )
 }
-export default User
+export default UserPage

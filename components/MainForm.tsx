@@ -1,8 +1,17 @@
 import { Form, Input, Button, InputNumber, Select, Switch } from 'antd'
 import { useEffect, useState } from 'react'
+import { getComputeUnit } from '@/api'
 import Excel from '@/components/no/Excel'
 const MainForm = ({ data }: { data?: any }) => {
   const [form] = Form.useForm()
+
+  const initSelectData = async () => {
+    const { data } = await getComputeUnit()
+    console.log(data)
+  }
+  useEffect(() => {
+    initSelectData()
+  })
   useEffect(() => {
     form.setFieldsValue({})
   }, [data])
@@ -59,7 +68,7 @@ const MainForm = ({ data }: { data?: any }) => {
                 <Form.Item
                   labelCol={{ span: 7 }}
                   label="长(CM)"
-                  name="l"
+                  name="length"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -71,7 +80,7 @@ const MainForm = ({ data }: { data?: any }) => {
                 <Form.Item
                   labelCol={{ span: 7 }}
                   label="宽(CM)"
-                  name="w"
+                  name="width"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -83,7 +92,7 @@ const MainForm = ({ data }: { data?: any }) => {
                 <Form.Item
                   labelCol={{ span: 7 }}
                   label="厚(MM)"
-                  name="h"
+                  name="height"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -112,7 +121,7 @@ const MainForm = ({ data }: { data?: any }) => {
                 </Form.Item>
                 <Form.Item
                   label="印刷方式"
-                  name="ysfs"
+                  name="printMethod"
                   rules={[{ required: true }]}
                 >
                   <Select
@@ -123,7 +132,7 @@ const MainForm = ({ data }: { data?: any }) => {
                 </Form.Item>
                 <Form.Item
                   label="边缘处理方式"
-                  name="byclfs"
+                  name="edgeProcessParam"
                   rules={[{ required: true }]}
                 >
                   <Select
@@ -149,7 +158,7 @@ const MainForm = ({ data }: { data?: any }) => {
               <div className="fi space-x-24">
                 <Form.Item
                   label="面料"
-                  name="ysfs"
+                  name="materialParam"
                   rules={[{ required: true }]}
                 >
                   <Select
@@ -160,7 +169,7 @@ const MainForm = ({ data }: { data?: any }) => {
                 </Form.Item>
                 <Form.Item
                   label="底料"
-                  name="byclfs"
+                  name="primerParam"
                   rules={[{ required: true }]}
                 >
                   <Select

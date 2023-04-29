@@ -1,5 +1,5 @@
 import type { NextPage } from 'next'
-import type { Role } from '@/types'
+import type { Role } from '@/api/types'
 import { Card, Form, Input, Button, Table, Tag, Popconfirm, Modal } from 'antd'
 import UserForm from '@/components/user/form'
 import FadeIn from '@/components/FadeIn'

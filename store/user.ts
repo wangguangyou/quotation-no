@@ -1,7 +1,7 @@
 import { proxy, subscribe } from 'valtio'
 import { subscribeKey } from 'valtio/utils'
 import type { MenuProps } from 'antd'
-import type { RLPAGE } from '@/types'
+import type { RLPAGE } from '@/api/types'
 type MenuItem = Required<MenuProps>['items'][number]
 
 type User = {

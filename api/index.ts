@@ -1,4 +1,12 @@
 import { GET, POST, PUT, DELETE } from './_config'
+import {
+  Response,
+  ResponsePagination,
+  Role,
+  RLPAGE,
+  User,
+  ParentUnit,
+} from './types'
 
 export const getLogin = (data: any) => POST('/user/login', data)
 
@@ -15,7 +23,8 @@ export const editPassword = (data: any) => PUT(`/user/edit/password`, data)
 
 export const editUserInfo = (data: any) => PUT(`/user/edit/info`, data)
 
-export const getUserList = (data: any) => GET(`/user/page`, data)
+export const getUserList = (data: any): ResponsePagination<User[]> =>
+  GET(`/user/page`, data)
 
 export const createRole = (data: any) => POST('/role/create', data)
 
@@ -36,6 +45,12 @@ export const roleRlPage = (id: number, data: { pageIds: number[] }) =>
 export const delRoleRlPage = (id: number, data: { pageIds: number[] }) =>
   DELETE(`/role/rl/page/${id}`, data)
 
-export const getRoleList = (data?: any) => GET(`/role/list`, data)
+export const getRoleList = (data?: any): Response<Role[]> =>
+  GET(`/role/list`, data)
 
-export const getPageList = (data?: any) => GET(`/page/list`, data)
+export const getPageList = (data?: any): Response<RLPAGE[]> =>
+  GET(`/page/list`, data)
+
+//获取计算父类 or 子类列表
+export const getComputeUnit = (path = '', data?: any): Response<ParentUnit[]> =>
+  GET(`/compute/unit/${path}`, data)
