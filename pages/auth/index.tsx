@@ -1,6 +1,5 @@
 import type { NextPage } from 'next'
 import { getRoleList, getPageList, roleRlPage, delRoleRlPage } from '@/api'
-import type { unwrapResponse } from '@/api/types'
 type Role = unwrapResponse<typeof getRoleList>[number]
 type RLPAGE = unwrapResponse<typeof getPageList>[number]
 
