@@ -1,30 +1,37 @@
 import type { NextPage } from 'next'
-import { Card, Form, Input, Button, Table, Tag, Popconfirm, Modal } from 'antd'
+import {
+  Card,
+  Form,
+  Input,
+  Button,
+  Table,
+  Descriptions,
+  Popconfirm,
+  Modal,
+  Select,
+} from 'antd'
 import MainForm from '@/components/MainForm'
 import FadeIn from '@/components/FadeIn'
 import AuthWrap from '@/components/AuthWrap'
-import {
-  getUserList,
-  getRoleList,
-  roleRlUser,
-  delUser,
-  delRoleRlUser,
-} from '@/api'
+import { getQuotationPage, delQuotation } from '@/api/quotation'
 import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
+import dataState from '@/store/data'
+import { useSnapshot } from 'valtio'
 
-type User = unwrapResponse<typeof getUserList>[number]
-type Role = unwrapResponse<typeof getRoleList>[number]
+type Quotation = unwrapResponse<typeof getQuotationPage>[number]
 
-const UserPage: NextPage = () => {
+const Page: NextPage = () => {
+  const state = useSnapshot(dataState)
   const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [currentUser, setCurrentUser] = useState<User>()
-  const [data, setData] = useState<User[]>([])
-  const [allRoleList, setRoleList] = useState<Role[]>([])
+  const [currentRecord, setCurrentRecord] = useState<Quotation | undefined>(
+    undefined
+  )
+  const [data, setData] = useState<Quotation[]>()
   const [loading, setLoading] = useState(true)
-  const [query, setQuery] = useState({ name: '' })
+  const [query, setQuery] = useState({})
   const [pagination, setPagination] = useState({
     current: 1,
     pageSize: 10,
@@ -32,31 +39,35 @@ const UserPage: NextPage = () => {
   })
 
   const onFinish = (values: any) => {
+    const { status } = values
+    values.complete = false
+    if (status === 100) {
+      values = { ...values, status: 10, complete: true }
+    }
+    setQuery((val) => Object.assign(val, values))
     setPagination((val) => Object.assign(val, { current: 1 }))
-    init(values)
+    init()
   }
-  const handleDelete = async (record: User) => {
-    await delUser(record.id)
+  const handleDelete = async (record: Quotation) => {
+    await delQuotation(record.id)
     init()
   }
   const onChange = (pagination: any) => {
     setPagination((val) => Object.assign(val, pagination))
     init()
   }
-  const onRoleChange = async (id: number, checked: boolean, record: User) => {
-    checked
-      ? await roleRlUser(id, { userId: record.id })
-      : await delRoleRlUser(id, { userId: record.id })
-    init()
-  }
-  const init = async (query?: any) => {
+  const init = async (): Promise<any> => {
     setLoading(true)
     const {
-      data: { list, total },
-    } = await getUserList({
+      data: { list, total, pageCurrent },
+    } = await getQuotationPage({
       ...{ size: pagination.pageSize, page: pagination.current },
       ...query,
     })
+    if (pageCurrent !== 1 && !list.length) {
+      setPagination((val) => Object.assign(val, { current: 1 }))
+      return init()
+    }
     setPagination({
       ...pagination,
       total,
@@ -64,20 +75,16 @@ const UserPage: NextPage = () => {
     setData(list)
     setLoading(false)
   }
-  const initRoleList = async () => {
-    const { data } = await getRoleList()
-    setRoleList(data)
-  }
+
   useEffect(() => {
-    initRoleList()
     init()
   }, [])
 
   const onAdd = () => {
     router.push('/no')
   }
-  const editUser = (record: User) => {
-    setCurrentUser(record)
+  const editRecord = (record: Quotation) => {
+    setCurrentRecord(record)
     setIsModalOpen(true)
   }
 
@@ -88,13 +95,34 @@ const UserPage: NextPage = () => {
     init()
     setIsModalOpen(false)
   }
+
+  const expandedRowRender = (record: Quotation, index: number) => {
+    return (
+      <Descriptions className="pt-16 w-400" column={2}>
+        <Descriptions.Item label="创建时间">
+          {dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss')}
+        </Descriptions.Item>
+        <Descriptions.Item label="经理">{record.manager}</Descriptions.Item>
+      </Descriptions>
+    )
+  }
   return (
     <>
       <FadeIn>
         <Card bordered={false}>
           <Form layout="inline" onFinish={onFinish} autoComplete="off">
-            <Form.Item label="关键字" name="name">
-              <Input />
+            <Form.Item label="业务员" name="clerk">
+              <Input allowClear />
+            </Form.Item>
+            <Form.Item label="采购员" name="buyer">
+              <Input allowClear />
+            </Form.Item>
+            <Form.Item label="状态" name="status">
+              <Select
+                allowClear
+                className="w-183!"
+                options={state.statusList as any}
+              />
             </Form.Item>
 
             <Form.Item>
@@ -112,64 +140,80 @@ const UserPage: NextPage = () => {
               </Button>
             </div>
           </AuthWrap>
-          <Table
-            onChange={onChange}
-            pagination={pagination}
-            bordered
-            rowKey="id"
-            loading={loading}
-            dataSource={data}
-          >
-            <Table.Column title="用户名" dataIndex="username" key="username" />
-            <Table.Column title="名称" dataIndex="nickname" key="nickname" />
-            <Table.Column
-              render={(roleList, record: User) => (
-                <>
-                  {allRoleList.map(({ id, roleName }) => (
-                    <Tag.CheckableTag
-                      checked={!!roleList?.find((find: Role) => find.id === id)}
-                      onChange={(checked) => onRoleChange(id, checked, record)}
-                      key={id}
-                    >
-                      {roleName}
-                    </Tag.CheckableTag>
-                  ))}
-                </>
-              )}
-              title="角色"
-              dataIndex="roleList"
-              key="roleList"
-            />
-            <Table.Column
-              title="创建时间"
-              dataIndex="createTime"
-              key="createTime"
-              render={(createTime) => (
-                <div>{dayjs(createTime).format('YYYY-MM-DD HH:mm:ss')}</div>
-              )}
-            />
+          {
+            <Table
+              expandable={{
+                expandedRowRender,
+                defaultExpandAllRows: false,
+              }}
+              onChange={onChange}
+              pagination={pagination}
+              bordered
+              rowKey="id"
+              loading={loading}
+              dataSource={data}
+            >
+              <Table.Column
+                title="尺寸"
+                dataIndex="length"
+                key="length"
+                render={(length, record: Quotation) =>
+                  `${length}*${record.width}*${record.height}`
+                }
+              />
+              <Table.Column title="数量" dataIndex="size" key="size" />
+              <Table.Column
+                title="状态"
+                dataIndex="quotedStatus"
+                key="quotedStatus"
+              />
+              <Table.Column title="业务员" dataIndex="clerk" key="clerk" />
+              <Table.Column title="采购员" dataIndex="buyer" key="buyer" />
 
-            <Table.Column
-              title="操作"
-              key="action"
-              width={120}
-              render={(_: any, record: User) => (
-                <div className="space-x-12">
-                  <AuthWrap auth="edit-no">
-                    <a onClick={() => editUser(record)}>修改</a>
-                  </AuthWrap>
-                  <AuthWrap auth="del-no">
-                    <Popconfirm
-                      title={`确定删除 ${record.username} ?`}
-                      onConfirm={() => handleDelete(record)}
-                    >
-                      <a>删除</a>
-                    </Popconfirm>
-                  </AuthWrap>
-                </div>
-              )}
-            />
-          </Table>
+              <Table.Column
+                title="成本价格"
+                dataIndex="costPrice"
+                key="costPrice"
+              />
+              <Table.Column
+                title="税后价格"
+                dataIndex="taxPrice"
+                key="taxPrice"
+              />
+              <Table.Column title="利润" dataIndex="profit" key="profit" />
+              <Table.Column
+                title="利润率"
+                dataIndex="profitPercentage"
+                key="profitPercentage"
+              />
+              <Table.Column
+                fixed={true}
+                title="最终价格"
+                dataIndex="quotedPrice"
+                key="quotedPrice"
+              />
+              <Table.Column
+                title="操作"
+                key="action"
+                width={120}
+                render={(_: any, record: Quotation) => (
+                  <div className="space-x-12">
+                    <AuthWrap auth="edit-no">
+                      <a onClick={() => editRecord(record)}>修改</a>
+                    </AuthWrap>
+                    <AuthWrap auth="del-no">
+                      <Popconfirm
+                        title={`确定删除?`}
+                        onConfirm={() => handleDelete(record)}
+                      >
+                        <a>删除</a>
+                      </Popconfirm>
+                    </AuthWrap>
+                  </div>
+                )}
+              />
+            </Table>
+          }
         </Card>
       </FadeIn>
       <Modal
@@ -182,10 +226,10 @@ const UserPage: NextPage = () => {
       >
         <h1 className="mt-0">修改报价单</h1>
         <div className="overflow-y-auto max-h-80vh">
-          <MainForm data={currentUser}></MainForm>
+          <MainForm data={currentRecord}></MainForm>
         </div>
       </Modal>
     </>
   )
 }
-export default UserPage
+export default Page

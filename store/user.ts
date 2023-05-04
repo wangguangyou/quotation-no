@@ -45,8 +45,8 @@ class State {
     },
     {
       key: 4,
-      label: '辅料管理',
-      code: 'template',
+      label: '参数管理',
+      code: 'param',
     },
     {
       key: 5,
@@ -64,7 +64,7 @@ class State {
       no: '/no',
       user_manager: '/user',
       list: '/list',
-      template: '/template',
+      param: '/param',
       auth_manager: '/auth',
       print_method_manager: '/',
     }

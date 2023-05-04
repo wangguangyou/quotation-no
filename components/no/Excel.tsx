@@ -243,6 +243,7 @@ const App: React.FC = () => {
   return (
     <Table
       tableLayout="fixed"
+      size="small"
       components={components}
       rowClassName={() => 'editable-row'}
       bordered

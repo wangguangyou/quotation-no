@@ -29,8 +29,9 @@ const UserPage: NextPage = () => {
   })
 
   const onFinish = (values: any) => {
+    setQuery((val) => Object.assign(val, values))
     setPagination((val) => Object.assign(val, { current: 1 }))
-    init(values)
+    init()
   }
   const handleDelete = async (record: User) => {
     await delUser(record.id)
@@ -46,14 +47,18 @@ const UserPage: NextPage = () => {
       : await delRoleRlUser(id, { userId: record.id })
     init()
   }
-  const init = async (query?: any) => {
+  const init = async (): Promise<any> => {
     setLoading(true)
     const {
-      data: { list, total },
+      data: { list, total, pageCurrent },
     } = await getUserList({
       ...{ size: pagination.pageSize, page: pagination.current },
       ...query,
     })
+    if (pageCurrent !== 1 && !list.length) {
+      setPagination((val) => Object.assign(val, { current: 1 }))
+      return init()
+    }
     setPagination({
       ...pagination,
       total,

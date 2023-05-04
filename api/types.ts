@@ -63,3 +63,106 @@ export interface RoleOfUser {
   createTime: string
   userId: number
 }
+export interface Fixed {
+  id: number
+  computeTypeId: number
+  valueCode: string
+  valueName: string
+  value: number
+  createTime: string
+  updateTime: string
+}
+export interface BadMap {
+  id: number
+  length: number
+  width: number
+  size: number
+  rate: number
+}
+export interface RangeMap {
+  id: number
+  minLength: number
+  minWidth: number
+  maxLength: number
+  maxWidth: number
+  size: number
+  rate: number
+}
+export interface Fre {
+  id: number
+  company: string
+  kgPrice: number
+}
+
+export interface MT {
+  id: number
+  materialName: string
+  price: number
+  weight: number
+}
+export interface PR {
+  id: number
+  primerName: string
+  piecePrice: number
+  coilPrice: number
+  pieceWeight: number
+  coilWeight: number
+}
+export interface Tax {
+  id: number
+  rateName: string
+  rateValue: number
+}
+
+export interface POL {
+  id: number
+  length: number
+  width: number
+  price: number
+}
+
+export interface LSOL {
+  id: number
+  length: number
+  price: number
+}
+
+export interface UV {
+  id: number
+  size: number
+  price: number
+}
+
+export interface LCP {
+  id: number
+  length: number
+  width: number
+  size: number
+  price: number
+}
+
+export interface Quotation {
+  id: number
+  userId: number
+  buyerId: number
+  managerId: number
+  length: number
+  width: number
+  height: number
+  size: number
+  quotedPrice: number //最终价格
+  costPrice: number //成本价格
+  taxPrice: number //税后价格
+  profit: number //利润
+  profitMargin: number //利润率
+  isDelete: boolean
+  quotedStatus: number
+  createTime: string
+  updateTime: string
+  clerk: string
+  buyer: string
+  manager: string
+  profitPercentage: string // 利润率
+  additional: boolean
+  reject: boolean // 是香退回
+}

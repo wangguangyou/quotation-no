@@ -1,17 +1,42 @@
 import { Form, Input, Button, InputNumber, Select, Switch } from 'antd'
 import { useEffect, useState } from 'react'
 import { getComputeUnit } from '@/api'
+import { getMtAll, getPrAll, getTaxAll, getFreAll } from '@/api/param'
+
 import Excel from '@/components/no/Excel'
 const MainForm = ({ data }: { data?: any }) => {
   const [form] = Form.useForm()
-
+  const [options, setOptions] = useState<Record<string, any>>({})
   const initSelectData = async () => {
     const { data } = await getComputeUnit()
     console.log(data)
   }
   useEffect(() => {
-    initSelectData()
-  })
+    Promise.all([getFreAll(), getMtAll(), getPrAll(), getTaxAll()]).then(
+      ([{ data: fre }, { data: mt }, { data: pr }, { data: tax }]) => {
+        setOptions({
+          fre: fre.map(({ id, company }) => ({
+            value: id,
+            label: company,
+          })),
+          mt: mt.map(({ id, materialName }) => ({
+            value: id,
+            label: materialName,
+          })),
+          pr: pr.map(({ id, primerName }) => ({
+            value: id,
+            label: primerName,
+          })),
+          tax: tax.map(({ id, rateName }) => ({
+            value: id,
+            label: rateName,
+          })),
+        })
+      }
+    )
+    // initSelectData()
+  }, [])
+
   useEffect(() => {
     form.setFieldsValue({})
   }, [data])
@@ -30,7 +55,7 @@ const MainForm = ({ data }: { data?: any }) => {
             <Form.Item
               labelCol={{ span: 3 }}
               label="客户信息"
-              name="name"
+              name="info"
               rules={[{ required: true }]}
             >
               <Input className="w-300" placeholder="旺旺、微信、客户名称等" />
@@ -38,7 +63,7 @@ const MainForm = ({ data }: { data?: any }) => {
             <Form.Item
               labelCol={{ span: 3 }}
               label="客户精准定位"
-              name="name"
+              name="position"
               rules={[{ required: true }]}
             >
               <Input className="w-300" placeholder="C店、外贸公司、商超等" />
@@ -46,7 +71,7 @@ const MainForm = ({ data }: { data?: any }) => {
             <Form.Item
               labelCol={{ span: 3 }}
               label="客户价格"
-              name="name"
+              name="price"
               rules={[{ required: true }]}
             >
               <Input
@@ -109,7 +134,7 @@ const MainForm = ({ data }: { data?: any }) => {
               <div className="fi space-x-24">
                 <Form.Item
                   label="订单数量"
-                  name="sum"
+                  name="size"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -164,7 +189,7 @@ const MainForm = ({ data }: { data?: any }) => {
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={[{ value: 'lucy', label: 'Lucy' }]}
+                    options={options.mt}
                   />
                 </Form.Item>
                 <Form.Item
@@ -175,7 +200,7 @@ const MainForm = ({ data }: { data?: any }) => {
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={[{ value: 'lucy', label: 'Lucy' }]}
+                    options={options.pr}
                   />
                 </Form.Item>
               </div>
@@ -196,20 +221,30 @@ const MainForm = ({ data }: { data?: any }) => {
               <div className="text-#666 text-16 mb-12">包装要求</div>
 
               <div className="fi space-x-24">
-                <Form.Item
-                  label="摆放方式"
-                  name="ysfs"
-                  rules={[{ required: true }]}
-                >
-                  <Select
-                    placeholder="请选择"
-                    className="w-200!"
-                    options={[{ value: 'lucy', label: 'Lucy' }]}
+                <Form.Item label="列" name="row" rules={[{ required: true }]}>
+                  <InputNumber
+                    min={0}
+                    className="w-200"
+                    placeholder="请输入内容"
+                  />
+                </Form.Item>
+                <Form.Item label="排" name="col" rules={[{ required: true }]}>
+                  <InputNumber
+                    min={0}
+                    className="w-200"
+                    placeholder="请输入内容"
+                  />
+                </Form.Item>
+                <Form.Item label="层" name="layer" rules={[{ required: true }]}>
+                  <InputNumber
+                    min={0}
+                    className="w-200"
+                    placeholder="请输入内容"
                   />
                 </Form.Item>
               </div>
 
-              <div className="text-#666 text-16 mb-12">纸箱尺寸</div>
+              {/* <div className="text-#666 text-16 mb-12">纸箱尺寸</div>
               <div className="fi space-x-24">
                 <Form.Item
                   labelCol={{ span: 7 }}
@@ -285,7 +320,7 @@ const MainForm = ({ data }: { data?: any }) => {
                     placeholder="请输入内容"
                   />
                 </Form.Item>
-              </div>
+              </div> */}
             </div>
           </div>
 
@@ -295,20 +330,20 @@ const MainForm = ({ data }: { data?: any }) => {
                 物流运输
               </div>
             </div>
-
-            <div className="fi space-x-24">
-              <Form.Item
-                label="运输方式"
-                name="ysfs"
-                rules={[{ required: true }]}
-              >
-                <Select
-                  placeholder="请选择"
-                  className="w-200!"
-                  options={[{ value: 'lucy', label: 'Lucy' }]}
-                />
-              </Form.Item>
-              <Form.Item
+            <div className="pl-24">
+              <div className="fi space-x-24">
+                <Form.Item
+                  label="运输方式"
+                  name="freightParam"
+                  rules={[{ required: true }]}
+                >
+                  <Select
+                    placeholder="请选择"
+                    className="w-200!"
+                    options={options.fre}
+                  />
+                </Form.Item>
+                {/* <Form.Item
                 label="运输付款方式"
                 name="byclfs"
                 rules={[{ required: true }]}
@@ -318,7 +353,7 @@ const MainForm = ({ data }: { data?: any }) => {
                   className="w-200!"
                   options={[{ value: 'lucy', label: 'Lucy' }]}
                 />
-              </Form.Item>
+              </Form.Item> 
               <Form.Item
                 label="运费"
                 name="byclfs"
@@ -329,7 +364,8 @@ const MainForm = ({ data }: { data?: any }) => {
                   className="w-200"
                   placeholder="请输入内容"
                 />
-              </Form.Item>
+              </Form.Item>*/}
+              </div>
             </div>
           </div>
 
@@ -339,17 +375,27 @@ const MainForm = ({ data }: { data?: any }) => {
                 开票信息
               </div>
             </div>
-            <div className="fi space-x-24">
-              <Form.Item
+            <div className="pl-24">
+              <div className="fi space-x-24">
+                {/* <Form.Item
                 label="增值税发票"
                 name="byclfs"
                 valuePropName="checked"
               >
                 <Switch />
-              </Form.Item>
-              <Form.Item label="普通发票" name="byclfs" valuePropName="checked">
-                <Switch />
-              </Form.Item>
+              </Form.Item>*/}
+                <Form.Item
+                  rules={[{ required: true }]}
+                  label="发票类型"
+                  name="taxRateParam"
+                >
+                  <Select
+                    placeholder="请选择"
+                    className="w-200!"
+                    options={options.tax}
+                  />
+                </Form.Item>
+              </div>
             </div>
           </div>
         </div>
