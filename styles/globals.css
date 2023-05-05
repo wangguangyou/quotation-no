@@ -67,7 +67,7 @@ input::placeholder,
 }
 
 .editable-cell-value-wrap {
-  padding: 5px 12px;
+  height:32px;
   cursor: pointer;
   text-overflow: ellipsis;
   overflow: hidden;

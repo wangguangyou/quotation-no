@@ -1,5 +1,6 @@
 declare module 'dayjs'
 declare module '@ant-design/plots'
+declare module '@ant-design/pro-components'
 
 interface Base<T> {
   status: boolean
@@ -28,3 +29,8 @@ type unwrapResponse<T extends (...args: any) => any> = T extends (
 ) => Promise<Base<Pagination<infer R>>>
   ? R
   : unwrapBase<T>
+
+interface Option {
+  value: number
+  label: string
+}

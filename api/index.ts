@@ -1,5 +1,5 @@
 import { GET, POST, PUT, DELETE } from './_config'
-import { Role, RLPAGE, User, ParentUnit } from './types'
+import { Role, RLPAGE, User, ParentUnit, SubUnit, Check } from './types'
 
 export const getLogin = (data: any) => POST('/user/login', data)
 
@@ -44,8 +44,16 @@ export const getRoleList = (data?: any): JavaResponse<Role[]> =>
 export const getPageList = (data?: any): JavaResponse<RLPAGE[]> =>
   GET(`/page/list`, data)
 
-//获取计算父类 or 子类列表
-export const getComputeUnit = (
-  path = '',
+//获取计算父类列表
+export const getComputeUnit = (data?: any): JavaResponse<ParentUnit[]> =>
+  GET(`/compute/unit`, data)
+
+//获取计算子类列表
+export const getSubComputeUnit = (
+  path: string,
   data?: any
-): JavaResponse<ParentUnit[]> => GET(`/compute/unit/${path}`, data)
+): JavaResponse<SubUnit[]> => GET(`/compute/unit/${path}`, data)
+
+//参数检测
+export const checkCompute = (data: any): JavaResponse<[Check, Check]> =>
+  POST(`/compute/check`, data)

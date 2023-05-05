@@ -12,6 +12,7 @@ import {
   LSOL,
   UV,
   LCP,
+  Accy,
 } from './types'
 //获取固定参数列表
 export const getFixedParam = (data?: any): JavaResponse<Fixed[]> =>
@@ -106,6 +107,21 @@ export const editTax = (id: Tax['id'], data: Omit<Tax, 'id'>) =>
 
 export const delTax = (id: Tax['id'], data?: any) =>
   DELETE(`/param/tax/delete/${id}`, data)
+
+//辅料明细
+export const getAccyPage = (data?: any): JavaResponsePagination<Accy[]> =>
+  GET('/param/accy/page', data)
+
+export const getAccyAll = (data?: any): JavaResponse<Accy[]> =>
+  GET('/param/accy/all', data)
+
+export const addAccy = (data: Omit<Accy, 'id'>) => POST('/param/accy/add', data)
+
+export const editAccy = (id: Accy['id'], data: Omit<Accy, 'id'>) =>
+  PUT(`/param/accy/update/${id}`, data)
+
+export const delAccy = (id: Accy['id'], data?: any) =>
+  DELETE(`/param/accy/delete/${id}`, data)
 
 //边缘处理-精密锁边
 export const getPolPage = (data?: any): JavaResponsePagination<POL[]> =>

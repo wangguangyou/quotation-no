@@ -1,19 +1,51 @@
-import { Form, Input, Button, InputNumber, Select, Switch } from 'antd'
-import { useEffect, useState } from 'react'
-import { getComputeUnit } from '@/api'
-import { getMtAll, getPrAll, getTaxAll, getFreAll } from '@/api/param'
+import { Form, Input, Button, InputNumber, Select, Checkbox } from 'antd'
+import { useEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { getComputeUnit, getSubComputeUnit, checkCompute } from '@/api'
+import { addQuotation } from '@/api/quotation'
+import {
+  getMtAll,
+  getPrAll,
+  getTaxAll,
+  getFreAll,
+  getAccyAll,
+} from '@/api/param'
 
 import Excel from '@/components/no/Excel'
+type ExcelHandle = React.ElementRef<typeof Excel>
+
 const MainForm = ({ data }: { data?: any }) => {
+  const excelRef = useRef<ExcelHandle>(null)
   const [form] = Form.useForm()
   const [options, setOptions] = useState<Record<string, any>>({})
+  const [checkData, setCheckData] =
+    useState<unwrapResponse<typeof checkCompute>>()
+  const [badRateParamDisabled, setBadRateParamDisabled] = useState(true)
+  const [showNeedDriverChip, setShowNeedDriverChip] = useState(false)
+  const [isSilkPrintPM, setIsSilkPrintPM] = useState(false)
   const initSelectData = async () => {
     const { data } = await getComputeUnit()
     console.log(data)
   }
   useEffect(() => {
-    Promise.all([getFreAll(), getMtAll(), getPrAll(), getTaxAll()]).then(
-      ([{ data: fre }, { data: mt }, { data: pr }, { data: tax }]) => {
+    Promise.all([
+      getFreAll(),
+      getMtAll(),
+      getPrAll(),
+      getTaxAll(),
+      getAccyAll(),
+      getSubComputeUnit('PrintMethod'),
+      getSubComputeUnit('EdgeProcess'),
+    ]).then(
+      ([
+        { data: fre },
+        { data: mt },
+        { data: pr },
+        { data: tax },
+        { data: accy },
+        { data: PrintMethod },
+        { data: EdgeProcess },
+      ]) => {
         setOptions({
           fre: fre.map(({ id, company }) => ({
             value: id,
@@ -31,19 +63,177 @@ const MainForm = ({ data }: { data?: any }) => {
             value: id,
             label: rateName,
           })),
+          accy: accy.map(({ id, accyName }) => ({
+            value: id,
+            label: accyName,
+          })),
+          PrintMethod: PrintMethod.map(({ typeCode, typeName }) => ({
+            value: typeCode,
+            label: typeName,
+          })),
+          EdgeProcess: EdgeProcess.map(({ typeCode, typeName }) => ({
+            value: typeCode,
+            label: typeName,
+          })),
         })
       }
     )
     // initSelectData()
   }, [])
 
+  const onFinish = async () => {
+    const accyItemList = await excelRef.current!.validator()
+    console.log(accyItemList)
+    const [values] = await Promise.all([
+      form.validateFields(),
+      // excelRef.current!.validator(),
+    ])
+
+    // const accyItemList = excelRef.current?.dataSource
+    const {
+      info,
+      position,
+      price,
+      length,
+      width,
+      height,
+      size,
+      badRateParam,
+      materialParam,
+      edgeProcessParam,
+      printMethod,
+      stencilCount,
+      silkPrintCount,
+      primerParam,
+      row,
+      col,
+      layer,
+      taxRateParam,
+      freightParam,
+    } = values
+    const params = {
+      length,
+      width,
+      height,
+      size,
+      printMethod: {
+        code: printMethod,
+        stencilCount, // ⽹板次数
+        silkPrintCount, // 丝印次数
+      },
+      packageParam: {
+        row,
+        col,
+        layer,
+      },
+      materialParam: {
+        mapId: materialParam,
+      },
+      freightParam: {
+        mapId: freightParam,
+      },
+      primerParam: {
+        mapId: primerParam,
+      },
+      taxRateParam: {
+        mapId: taxRateParam,
+      },
+      badRateParam: {
+        inputRate: badRateParam,
+      },
+      edgeProcessParam: {
+        code: edgeProcessParam,
+        needDriverChip: false,
+      },
+      customerParam: {
+        info,
+        position,
+        price,
+      },
+      accyParam: {
+        accyItemList,
+      },
+    }
+    addQuotation(params)
+  }
+  const onValuesChange = async (changedValues: any, allValues: any) => {
+    if ('printMethod' in changedValues) {
+      setIsSilkPrintPM(changedValues.printMethod === 'SilkPrintPM')
+    }
+    if ('edgeProcessParam' in changedValues) {
+      setShowNeedDriverChip(
+        changedValues.edgeProcessParam === 'LuminousStripOverLockEP'
+      )
+    }
+    const watch = ['length', 'width', 'height']
+
+    if (
+      watch.find((find) => {
+        return find in changedValues
+      })
+    ) {
+      const { length, width, height, badRateParam, edgeProcessParam } =
+        allValues
+      if (length != null && width != null && height != null) {
+        const {
+          data: [StandardBAD, LuminousStripOverLockEP],
+        } = await checkCompute({ length, width, height })
+
+        setCheckData([StandardBAD, LuminousStripOverLockEP])
+
+        if (StandardBAD.hasError) {
+          if (badRateParam == null) {
+            setBadRateParamDisabled(false)
+
+            form.setFields([
+              {
+                name: 'badRateParam',
+                errors: [StandardBAD.error],
+              },
+            ])
+          }
+        } else {
+          setBadRateParamDisabled(true)
+          form.setFields([
+            {
+              name: 'badRateParam',
+              errors: [],
+              //todo
+            },
+          ])
+        }
+
+        if (LuminousStripOverLockEP.hasError) {
+          if (edgeProcessParam === 'LuminousStripOverLockEP') {
+            form.setFields([
+              {
+                name: 'edgeProcessParam',
+                errors: [LuminousStripOverLockEP.error],
+              },
+            ])
+          }
+        } else {
+          form.setFields([
+            {
+              name: 'edgeProcessParam',
+              errors: [],
+            },
+          ])
+        }
+      }
+    }
+  }
   useEffect(() => {
     form.setFieldsValue({})
   }, [data])
 
   return (
     <div className="relative">
-      <Form form={form}>
+      <Form
+        scrollToFirstError={true}
+        onValuesChange={onValuesChange}
+        form={form}
+      >
         <div className="pb-130 space-y-32">
           <div>
             <div className="divider mb-32">
@@ -91,37 +281,54 @@ const MainForm = ({ data }: { data?: any }) => {
 
               <div className="fi space-x-24">
                 <Form.Item
-                  labelCol={{ span: 7 }}
-                  label="长(CM)"
+                  labelCol={{ span: 8 }}
+                  label="长"
                   name="length"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
+                    addonAfter="CM"
                     min={0}
                     className="w-200"
                     placeholder="请输入内容"
                   />
                 </Form.Item>
                 <Form.Item
-                  labelCol={{ span: 7 }}
-                  label="宽(CM)"
+                  labelCol={{ span: 8 }}
+                  label="宽"
                   name="width"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
+                    addonAfter="CM"
                     min={0}
                     className="w-200"
                     placeholder="请输入内容"
                   />
                 </Form.Item>
                 <Form.Item
-                  labelCol={{ span: 7 }}
-                  label="厚(MM)"
+                  labelCol={{ span: 8 }}
+                  label="厚"
                   name="height"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
+                    addonAfter="MM"
                     min={0}
+                    className="w-200"
+                    placeholder="请输入内容"
+                  />
+                </Form.Item>
+                <Form.Item
+                  labelCol={{ span: 8 }}
+                  label="不良率"
+                  name="badRateParam"
+                  rules={[{ required: !badRateParamDisabled }]}
+                >
+                  <InputNumber
+                    disabled={badRateParamDisabled}
+                    min={0}
+                    addonAfter="%"
                     className="w-200"
                     placeholder="请输入内容"
                   />
@@ -152,21 +359,84 @@ const MainForm = ({ data }: { data?: any }) => {
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={[{ value: 'lucy', label: 'Lucy' }]}
+                    options={options.PrintMethod}
                   />
                 </Form.Item>
                 <Form.Item
                   label="边缘处理方式"
                   name="edgeProcessParam"
-                  rules={[{ required: true }]}
+                  rules={[
+                    {
+                      required: true,
+                      async validator(rule, value) {
+                        if (!value) {
+                          throw new Error('边缘处理方式不能为空')
+                        }
+                        if (
+                          checkData?.[1].hasError &&
+                          value === 'LuminousStripOverLockEP'
+                        ) {
+                          throw new Error(checkData?.[1].error)
+                        }
+                      },
+                    },
+                  ]}
                 >
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={[{ value: 'lucy', label: 'Lucy' }]}
+                    options={options.EdgeProcess}
                   />
                 </Form.Item>
+                <AnimatePresence>
+                  {showNeedDriverChip && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                    >
+                      <Form.Item name="needDriverChip" valuePropName="checked">
+                        <Checkbox>是否需要驱动芯片</Checkbox>
+                      </Form.Item>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
+
+              <AnimatePresence>
+                {isSilkPrintPM && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                  >
+                    <div className="fi space-x-24">
+                      <Form.Item
+                        label="网板次数"
+                        name="silkPrintCount"
+                        rules={[{ required: true }]}
+                      >
+                        <InputNumber
+                          min={0}
+                          className="w-200"
+                          placeholder="请输入内容"
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        label="丝印次数"
+                        name="stencilCount"
+                        rules={[{ required: true }]}
+                      >
+                        <InputNumber
+                          min={0}
+                          className="w-200"
+                          placeholder="请输入内容"
+                        />
+                      </Form.Item>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
@@ -206,7 +476,9 @@ const MainForm = ({ data }: { data?: any }) => {
               </div>
 
               <div className="text-#666 text-16 mb-12">辅料明细</div>
-              <Excel></Excel>
+              {options.accy && (
+                <Excel ref={excelRef} options={options.accy}></Excel>
+              )}
             </div>
           </div>
 
@@ -399,32 +671,34 @@ const MainForm = ({ data }: { data?: any }) => {
             </div>
           </div>
         </div>
-      </Form>
 
-      <footer
-        className="h-130 absolute bottom-0 left-0 w-full flex items-center 
+        <footer
+          className="h-130 absolute bottom-0 left-0 w-full flex items-center 
      "
-      >
-        <div>
-          <span className="text-18 text-#888 mr-12 align-text-bottom">
-            合计
-          </span>
-          <span className="linear-text inline-block text-40 fw-600">
-            {(12323).toLocaleString()}
-          </span>
+        >
+          <div>
+            <span className="text-18 text-#888 mr-12 align-text-bottom">
+              合计
+            </span>
+            <span className="linear-text inline-block text-40 fw-600">
+              {(12323).toLocaleString()}
+            </span>
 
-          <div className="mt-16">
-            <Button
-              shape="round"
-              size="large"
-              type="primary"
-              className="w-full"
-            >
-              提交
-            </Button>
+            <div className="mt-16">
+              <Button
+                onClick={onFinish}
+                shape="round"
+                size="large"
+                htmlType="submit"
+                type="primary"
+                className="w-full"
+              >
+                提交
+              </Button>
+            </div>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </Form>
     </div>
   )
 }

@@ -2,6 +2,7 @@ import type { NextPageWithLayout } from '../_app'
 import { Card, Tabs } from 'antd'
 import type { TabsProps } from 'antd'
 import Fixed from '@/components/param/Fixed'
+import Accy from '@/components/param/Accy'
 import BadMap from '@/components/param/BadMap'
 import BadRange from '@/components/param/BadRange'
 import Fre from '@/components/param/Fre'
@@ -17,6 +18,10 @@ const items: TabsProps['items'] = [
   {
     label: `固定参数`,
     children: <Fixed />,
+  },
+  {
+    label: `辅料明细`,
+    children: <Accy />,
   },
   {
     label: `常规不良率`,

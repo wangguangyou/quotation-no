@@ -47,7 +47,21 @@ export interface ParentUnit {
   createTime: string
   updateTime: string
 }
+export interface SubUnit {
+  id: number
+  unitId: number
+  typeName: string
+  typeCode: string
+  createTime: string
+  updateTime: string
+  typeEnable: boolean
+}
 
+export interface Check {
+  typeCode: string
+  error: string
+  hasError: boolean
+}
 export interface User {
   id: number
   username: string
@@ -140,7 +154,10 @@ export interface LCP {
   size: number
   price: number
 }
-
+export interface Accy {
+  id: number
+  accyName: string
+}
 export interface Quotation {
   id: number
   userId: number

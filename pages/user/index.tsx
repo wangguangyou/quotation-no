@@ -1,5 +1,14 @@
 import type { NextPage } from 'next'
-import { Card, Form, Input, Button, Table, Tag, Popconfirm, Modal } from 'antd'
+import {
+  Card,
+  Form,
+  Input,
+  Button,
+  Table,
+  Radio,
+  Popconfirm,
+  Modal,
+} from 'antd'
 import UserForm from '@/components/user/form'
 import FadeIn from '@/components/FadeIn'
 import {
@@ -41,10 +50,17 @@ const UserPage: NextPage = () => {
     setPagination((val) => Object.assign(val, pagination))
     init()
   }
-  const onRoleChange = async (id: number, checked: boolean, record: User) => {
-    checked
-      ? await roleRlUser(id, { userId: record.id })
-      : await delRoleRlUser(id, { userId: record.id })
+  // const onRoleChange = async (id: number, checked: boolean, record: User) => {
+  //   checked
+  //     ? await roleRlUser(id, { userId: record.id })
+  //     : await delRoleRlUser(id, { userId: record.id })
+  //   init()
+  // }
+  const onRoleChange = async (id: number, record: User) => {
+    record.roleList[0]?.id &&
+      (await delRoleRlUser(record.roleList[0]?.id, { userId: record.id }))
+
+    await roleRlUser(id, { userId: record.id })
     init()
   }
   const init = async (): Promise<any> => {
@@ -113,6 +129,7 @@ const UserPage: NextPage = () => {
               新增用户
             </Button>
           </div>
+
           <Table
             onChange={onChange}
             pagination={pagination}
@@ -125,17 +142,18 @@ const UserPage: NextPage = () => {
             <Table.Column title="名称" dataIndex="nickname" key="nickname" />
             <Table.Column
               render={(roleList, record: User) => (
-                <>
+                <Radio.Group
+                  onChange={({ target: { value } }) =>
+                    onRoleChange(value, record)
+                  }
+                  value={roleList[0]?.id}
+                >
                   {allRoleList.map(({ id, roleName }) => (
-                    <Tag.CheckableTag
-                      checked={!!roleList?.find((find: Role) => find.id === id)}
-                      onChange={(checked) => onRoleChange(id, checked, record)}
-                      key={id}
-                    >
+                    <Radio key={id} value={id}>
                       {roleName}
-                    </Tag.CheckableTag>
+                    </Radio>
                   ))}
-                </>
+                </Radio.Group>
               )}
               title="角色"
               dataIndex="roleList"
