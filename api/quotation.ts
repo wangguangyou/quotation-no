@@ -8,6 +8,9 @@ export const getQuotationPage = (
 export const addQuotation = (data: any) => POST('/quotation/create', data)
 
 export const editQuotation = (id: Quotation['id'], data: any) =>
+  PUT(`/quotation/edit/${id}`, data)
+
+export const setQuotationStatus = (id: Quotation['id'], data: any) =>
   PUT(`/quotation/update/${id}`, data)
 
 export const delQuotation = (id: Quotation['id'], data?: any) =>

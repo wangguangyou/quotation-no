@@ -181,6 +181,10 @@ export interface Quotation {
   width: number
   height: number
   size: number
+  clerkComplete: boolean
+  customerInfo: string
+  customerPosition: string
+  customerPrice: string
   quotedPrice: number //最终价格
   costPrice: number //成本价格
   taxPrice: number //税后价格

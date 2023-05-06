@@ -11,7 +11,19 @@ const AuthWrap = ({ children, auth }: Props) => {
   if (auth === 'add-no' && !(state.isClerk || state.isAdmin)) {
     return <></>
   }
+  if (
+    auth === 'reject' &&
+    !(state.isBuyer || state.isAdmin || state.isManager)
+  ) {
+    return <></>
+  }
   if (auth === 'alone-create' && !(state.isClerk || state.isAdmin)) {
+    return <></>
+  }
+  if (auth === 'input-profit' && !(state.isManager || state.isAdmin)) {
+    return <></>
+  }
+  if (auth === 'del-no' && !state.isAdmin) {
     return <></>
   }
   return <>{children}</>

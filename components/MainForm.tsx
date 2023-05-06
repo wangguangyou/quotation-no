@@ -264,27 +264,29 @@ const MainForm = ({ data }: { data?: any }) => {
   }
   useEffect(() => {
     ;(async () => {
-      const { data: raw } = await getQuotationParam(data.id)
-      setExcelData(raw.accyParam.accyItemList)
-      form.setFieldsValue({
-        info: raw.customerParam.info,
-        position: raw.customerParam.position,
-        price: raw.customerParam.price,
-        size: raw.size,
-        length: raw.length,
-        width: raw.width,
-        height: raw.height,
-        printMethod: raw.printMethod.code,
-        edgeProcessParam: raw.edgeProcessParam.code,
-        materialParam: raw.materialParam.mapId,
-        primerParam: raw.primerParam.mapId,
-        col: raw.packageParam.col,
-        row: raw.packageParam.row,
-        layer: raw.packageParam.layer,
-        taxRateParam: raw.taxRateParam.mapId,
-        badRateParam: raw.badRateParam.inputRate,
-        freightParam: raw.freightParam.mapId,
-      })
+      if (data) {
+        const { data: raw } = await getQuotationParam(data.id)
+        setExcelData(raw.accyParam.accyItemList)
+        form.setFieldsValue({
+          info: raw.customerParam.info,
+          position: raw.customerParam.position,
+          price: raw.customerParam.price,
+          size: raw.size,
+          length: raw.length,
+          width: raw.width,
+          height: raw.height,
+          printMethod: raw.printMethod.code,
+          edgeProcessParam: raw.edgeProcessParam.code,
+          materialParam: raw.materialParam.mapId,
+          primerParam: raw.primerParam.mapId,
+          col: raw.packageParam.col,
+          row: raw.packageParam.row,
+          layer: raw.packageParam.layer,
+          taxRateParam: raw.taxRateParam.mapId,
+          badRateParam: raw.badRateParam.inputRate,
+          freightParam: raw.freightParam.mapId,
+        })
+      }
     })()
   }, [data])
 

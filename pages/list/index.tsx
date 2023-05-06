@@ -15,17 +15,23 @@ import type { BadgeProps } from 'antd'
 import MainForm from '@/components/MainForm'
 import FadeIn from '@/components/FadeIn'
 import AuthWrap from '@/components/AuthWrap'
-import { getQuotationPage, delQuotation } from '@/api/quotation'
+import {
+  getQuotationPage,
+  delQuotation,
+  setQuotationStatus,
+} from '@/api/quotation'
 import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import { useRouter } from 'next/navigation'
 import dataState from '@/store/data'
+import userState from '@/store/user'
 import { useSnapshot } from 'valtio'
 
 type Quotation = unwrapResponse<typeof getQuotationPage>[number]
 
 const Page: NextPage = () => {
   const state = useSnapshot(dataState)
+  const currentUserState = useSnapshot(userState)
   const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [currentRecord, setCurrentRecord] = useState<Quotation | undefined>(
@@ -98,6 +104,12 @@ const Page: NextPage = () => {
   const handleCancel = () => {
     setIsModalOpen(false)
   }
+  const rePut = async (record: Quotation) => {
+    await setQuotationStatus(record.id, { newStatus: 1 })
+  }
+  const handleReject = async (record: Quotation) => {
+    await setQuotationStatus(record.id, { newStatus: record.buyer ? 20 : 21 })
+  }
   const onAction = () => {
     init()
     setIsModalOpen(false)
@@ -105,11 +117,20 @@ const Page: NextPage = () => {
 
   const expandedRowRender = (record: Quotation, index: number) => {
     return (
-      <Descriptions className="pt-16 w-400" column={2}>
+      <Descriptions className="pt-16 " column={5}>
+        <Descriptions.Item label="经理">{record.manager}</Descriptions.Item>
+        <Descriptions.Item label="客户信息">
+          {record.customerInfo}
+        </Descriptions.Item>
+        <Descriptions.Item label="客户精准定位">
+          {record.customerPosition}
+        </Descriptions.Item>
+        <Descriptions.Item label="客户价格">
+          {record.customerPrice}
+        </Descriptions.Item>
         <Descriptions.Item label="创建时间">
           {dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss')}
         </Descriptions.Item>
-        <Descriptions.Item label="经理">{record.manager}</Descriptions.Item>
       </Descriptions>
     )
   }
@@ -154,7 +175,10 @@ const Page: NextPage = () => {
                 defaultExpandAllRows: false,
               }}
               onChange={onChange}
-              pagination={pagination}
+              pagination={{
+                ...pagination,
+                showTotal: (total) => `共${total}条`,
+              }}
               bordered
               rowKey="id"
               loading={loading}
@@ -191,11 +215,13 @@ const Page: NextPage = () => {
                 title="成本价格"
                 dataIndex="costPrice"
                 key="costPrice"
+                render={(costPrice) => costPrice.toFixed(2)}
               />
               <Table.Column
                 title="税后价格"
                 dataIndex="taxPrice"
                 key="taxPrice"
+                render={(taxPrice) => taxPrice.toFixed(2)}
               />
               <Table.Column title="利润" dataIndex="profit" key="profit" />
               <Table.Column
@@ -208,25 +234,71 @@ const Page: NextPage = () => {
                 title="最终价格"
                 dataIndex="quotedPrice"
                 key="quotedPrice"
+                render={(quotedPrice) => quotedPrice.toFixed(2)}
               />
               <Table.Column
                 title="操作"
                 key="action"
-                width={120}
+                width={160}
                 render={(_: any, record: Quotation) => (
-                  <div className="space-x-12">
-                    <AuthWrap auth="edit-no">
-                      <a onClick={() => editRecord(record)}>修改</a>
-                    </AuthWrap>
-                    <AuthWrap auth="del-no">
+                  <>
+                    {[0, 10, 11].includes(record.quotedStatus) &&
+                      record.buyer && (
+                        <AuthWrap auth="input-profit">
+                          <Button size="small" type="link">
+                            填写利润
+                          </Button>
+                        </AuthWrap>
+                      )}
+                    {![30].includes(record.quotedStatus) && (
+                      <AuthWrap auth="edit-no">
+                        <Button
+                          size="small"
+                          type="link"
+                          onClick={() => editRecord(record)}
+                        >
+                          修改
+                        </Button>
+                      </AuthWrap>
+                    )}
+                    {[20, 21].includes(record.quotedStatus) && (
+                      <AuthWrap auth="edit-no">
+                        <Popconfirm
+                          title={`确定重新提交?`}
+                          onConfirm={() => rePut(record)}
+                        >
+                          <Button size="small" type="link">
+                            重新提交
+                          </Button>
+                        </Popconfirm>
+                      </AuthWrap>
+                    )}
+
+                    {![20, 21].includes(record.quotedStatus) && (
+                      <AuthWrap auth="reject">
+                        <Popconfirm
+                          title={`确定驳回?`}
+                          onConfirm={() => handleReject(record)}
+                        >
+                          <Button size="small" type="link">
+                            驳回
+                          </Button>
+                        </Popconfirm>
+                      </AuthWrap>
+                    )}
+
+                    {(currentUserState.isAdmin ||
+                      [20, 21].includes(record.quotedStatus)) && (
                       <Popconfirm
                         title={`确定删除?`}
                         onConfirm={() => handleDelete(record)}
                       >
-                        <a>删除</a>
+                        <Button size="small" type="link">
+                          删除
+                        </Button>
                       </Popconfirm>
-                    </AuthWrap>
-                  </div>
+                    )}
+                  </>
                 )}
               />
             </Table>
