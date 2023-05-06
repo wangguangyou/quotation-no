@@ -1,8 +1,22 @@
-import { Form, Input, Button, InputNumber, Select, Checkbox } from 'antd'
+import {
+  Form,
+  Input,
+  Button,
+  InputNumber,
+  Select,
+  Checkbox,
+  Alert,
+  message,
+} from 'antd'
+import AuthWrap from '@/components/AuthWrap'
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getComputeUnit, getSubComputeUnit, checkCompute } from '@/api'
+import { getSubComputeUnit, checkCompute } from '@/api'
+import { getQuotationParam } from '@/api/quotation'
 import { addQuotation } from '@/api/quotation'
+import userState from '@/store/user'
+import { useSnapshot } from 'valtio'
+type QuotationParam = unwrapResponse<typeof getQuotationParam>
 import {
   getMtAll,
   getPrAll,
@@ -15,6 +29,9 @@ import Excel from '@/components/no/Excel'
 type ExcelHandle = React.ElementRef<typeof Excel>
 
 const MainForm = ({ data }: { data?: any }) => {
+  const isEditMode = !!data
+  const state = useSnapshot(userState)
+  const [messageApi, contextHolder] = message.useMessage()
   const excelRef = useRef<ExcelHandle>(null)
   const [form] = Form.useForm()
   const [options, setOptions] = useState<Record<string, any>>({})
@@ -23,10 +40,12 @@ const MainForm = ({ data }: { data?: any }) => {
   const [badRateParamDisabled, setBadRateParamDisabled] = useState(true)
   const [showNeedDriverChip, setShowNeedDriverChip] = useState(false)
   const [isSilkPrintPM, setIsSilkPrintPM] = useState(false)
-  const initSelectData = async () => {
-    const { data } = await getComputeUnit()
-    console.log(data)
-  }
+  const [alone, setAlone] = useState(false)
+  const [key, setKey] = useState(0)
+  const [excelData, setExcelData] = useState<
+    QuotationParam['accyParam']['accyItemList']
+  >([])
+
   useEffect(() => {
     Promise.all([
       getFreAll(),
@@ -82,14 +101,11 @@ const MainForm = ({ data }: { data?: any }) => {
   }, [])
 
   const onFinish = async () => {
-    const accyItemList = await excelRef.current!.validator()
-    console.log(accyItemList)
-    const [values] = await Promise.all([
+    const [values, accyItemList] = await Promise.all([
       form.validateFields(),
-      // excelRef.current!.validator(),
+      excelRef.current!.validator(),
     ])
 
-    // const accyItemList = excelRef.current?.dataSource
     const {
       info,
       position,
@@ -112,26 +128,36 @@ const MainForm = ({ data }: { data?: any }) => {
       freightParam,
     } = values
     const params = {
+      clerkComplete: alone,
       length,
       width,
       height,
       size,
-      printMethod: {
-        code: printMethod,
-        stencilCount, // ⽹板次数
-        silkPrintCount, // 丝印次数
-      },
+      printMethod:
+        printMethod == null
+          ? null
+          : {
+              code: printMethod,
+              stencilCount, // ⽹板次数
+              silkPrintCount, // 丝印次数
+            },
       packageParam: {
         row,
         col,
         layer,
       },
-      materialParam: {
-        mapId: materialParam,
-      },
-      freightParam: {
-        mapId: freightParam,
-      },
+      materialParam:
+        materialParam == null
+          ? null
+          : {
+              mapId: materialParam,
+            },
+      freightParam:
+        freightParam == null
+          ? null
+          : {
+              mapId: freightParam,
+            },
       primerParam: {
         mapId: primerParam,
       },
@@ -141,10 +167,13 @@ const MainForm = ({ data }: { data?: any }) => {
       badRateParam: {
         inputRate: badRateParam,
       },
-      edgeProcessParam: {
-        code: edgeProcessParam,
-        needDriverChip: false,
-      },
+      edgeProcessParam:
+        edgeProcessParam == null
+          ? null
+          : {
+              code: edgeProcessParam,
+              needDriverChip: false,
+            },
       customerParam: {
         info,
         position,
@@ -154,7 +183,16 @@ const MainForm = ({ data }: { data?: any }) => {
         accyItemList,
       },
     }
-    addQuotation(params)
+    const { status } = await addQuotation(params)
+    if (status) {
+      messageApi.open({
+        type: 'success',
+        content: '操作成功',
+      })
+      setKey(Date.now())
+      // excelRef.current!.resetFields()
+      form.resetFields()
+    }
   }
   const onValuesChange = async (changedValues: any, allValues: any) => {
     if ('printMethod' in changedValues) {
@@ -165,40 +203,41 @@ const MainForm = ({ data }: { data?: any }) => {
         changedValues.edgeProcessParam === 'LuminousStripOverLockEP'
       )
     }
-    const watch = ['length', 'width', 'height']
+    const watch = ['length', 'width', 'height', 'size']
 
     if (
       watch.find((find) => {
         return find in changedValues
       })
     ) {
-      const { length, width, height, badRateParam, edgeProcessParam } =
+      if ('size' in changedValues) {
+        if (checkData?.[0].hasError) return
+      }
+      const { length, width, height, size, badRateParam, edgeProcessParam } =
         allValues
       if (length != null && width != null && height != null) {
         const {
           data: [StandardBAD, LuminousStripOverLockEP],
-        } = await checkCompute({ length, width, height })
+        } = await checkCompute({ length, width, height, size })
 
         setCheckData([StandardBAD, LuminousStripOverLockEP])
 
         if (StandardBAD.hasError) {
-          if (badRateParam == null) {
-            setBadRateParamDisabled(false)
-
-            form.setFields([
-              {
-                name: 'badRateParam',
-                errors: [StandardBAD.error],
-              },
-            ])
-          }
+          setBadRateParamDisabled(false)
+          form.setFields([
+            {
+              name: 'badRateParam',
+              errors: [StandardBAD.error],
+              value: undefined,
+            },
+          ])
         } else {
           setBadRateParamDisabled(true)
           form.setFields([
             {
               name: 'badRateParam',
               errors: [],
-              //todo
+              value: StandardBAD.value,
             },
           ])
         }
@@ -224,11 +263,52 @@ const MainForm = ({ data }: { data?: any }) => {
     }
   }
   useEffect(() => {
-    form.setFieldsValue({})
+    ;(async () => {
+      const { data: raw } = await getQuotationParam(data.id)
+      setExcelData(raw.accyParam.accyItemList)
+      form.setFieldsValue({
+        info: raw.customerParam.info,
+        position: raw.customerParam.position,
+        price: raw.customerParam.price,
+        size: raw.size,
+        length: raw.length,
+        width: raw.width,
+        height: raw.height,
+        printMethod: raw.printMethod.code,
+        edgeProcessParam: raw.edgeProcessParam.code,
+        materialParam: raw.materialParam.mapId,
+        primerParam: raw.primerParam.mapId,
+        col: raw.packageParam.col,
+        row: raw.packageParam.row,
+        layer: raw.packageParam.layer,
+        taxRateParam: raw.taxRateParam.mapId,
+        badRateParam: raw.badRateParam.inputRate,
+        freightParam: raw.freightParam.mapId,
+      })
+    })()
   }, [data])
 
   return (
     <div className="relative">
+      {contextHolder}
+      {!isEditMode && (
+        <AuthWrap auth="alone-create">
+          <Alert
+            className="w-400 mb-24"
+            showIcon
+            message="选择是否独自完成全流程"
+            type={alone ? 'success' : 'info'}
+            action={
+              <Checkbox
+                checked={alone}
+                onChange={({ target: { checked } }) => setAlone(checked)}
+              >
+                确定
+              </Checkbox>
+            }
+          />
+        </AuthWrap>
+      )}
       <Form
         scrollToFirstError={true}
         onValuesChange={onValuesChange}
@@ -328,6 +408,7 @@ const MainForm = ({ data }: { data?: any }) => {
                   <InputNumber
                     disabled={badRateParamDisabled}
                     min={0}
+                    max={100}
                     addonAfter="%"
                     className="w-200"
                     placeholder="请输入内容"
@@ -476,8 +557,16 @@ const MainForm = ({ data }: { data?: any }) => {
               </div>
 
               <div className="text-#666 text-16 mb-12">辅料明细</div>
-              {options.accy && (
-                <Excel ref={excelRef} options={options.accy}></Excel>
+              {options.accy && (!isEditMode || excelData) && (
+                <Excel
+                  data={excelData}
+                  key={key}
+                  requireds={['print', 'material', 'size'].concat(
+                    alone || state.isBuyer ? ['price'] : []
+                  )}
+                  ref={excelRef}
+                  options={options.accy}
+                ></Excel>
               )}
             </div>
           </div>
@@ -689,7 +778,7 @@ const MainForm = ({ data }: { data?: any }) => {
                 onClick={onFinish}
                 shape="round"
                 size="large"
-                htmlType="submit"
+                // htmlType="submit"
                 type="primary"
                 className="w-full"
               >

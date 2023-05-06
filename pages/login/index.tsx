@@ -8,8 +8,9 @@ import userState from '@/store/user'
 import { useRouter } from 'next/navigation'
 import { getLogin } from '@/api'
 import { usePathname } from 'next/navigation'
-
+import { useSnapshot } from 'valtio'
 const Login: NextPageWithLayout = () => {
+  const state = useSnapshot(userState)
   const [isVisible, setIsVisible] = useState(true)
   const pathname = usePathname()
   const router = useRouter()
@@ -18,7 +19,7 @@ const Login: NextPageWithLayout = () => {
     // setIsVisible(false)
     const { data } = await getLogin(values)
     userState.user = data
-    router.push('/')
+    router.push(state.showMenu[0]?.key || '/')
   }
 
   return (

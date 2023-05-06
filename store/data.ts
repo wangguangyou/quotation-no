@@ -2,6 +2,7 @@ import { proxy } from 'valtio'
 
 type Store = {
   statusList: { label: string; value: number }[]
+  getLabel: (value: number) => string | undefined
 }
 
 class State {
@@ -35,6 +36,9 @@ class State {
       label: '已完成',
     },
   ]
+  getLabel(value: number) {
+    return this.statusList.find((find) => find.value === value)?.label
+  }
 }
 const state = proxy<Store>(new State())
 

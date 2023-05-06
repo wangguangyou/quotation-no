@@ -1,7 +1,17 @@
 import { GET, POST, PUT, DELETE } from './_config'
-import { Role, RLPAGE, User, ParentUnit, SubUnit, Check } from './types'
+import {
+  Role,
+  RLPAGE,
+  User,
+  ParentUnit,
+  SubUnit,
+  Check,
+  LoginUser,
+  ComputedResult,
+} from './types'
 
-export const getLogin = (data: any) => POST('/user/login', data)
+export const getLogin = (data: any): JavaResponse<LoginUser> =>
+  POST('/user/login', data)
 
 export const getRlPage = (data: any) => GET('/user/rl/page', data)
 
@@ -57,3 +67,6 @@ export const getSubComputeUnit = (
 //参数检测
 export const checkCompute = (data: any): JavaResponse<[Check, Check]> =>
   POST(`/compute/check`, data)
+
+export const combCompute = (data: any): JavaResponse<ComputedResult> =>
+  POST(`/compute/comb`, data)

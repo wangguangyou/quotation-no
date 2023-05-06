@@ -8,7 +8,12 @@ interface Props {
 }
 const AuthWrap = ({ children, auth }: Props) => {
   const state = useSnapshot(userState)
-
+  if (auth === 'add-no' && !(state.isClerk || state.isAdmin)) {
+    return <></>
+  }
+  if (auth === 'alone-create' && !(state.isClerk || state.isAdmin)) {
+    return <></>
+  }
   return <>{children}</>
 }
 export default AuthWrap

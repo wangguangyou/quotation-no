@@ -23,9 +23,9 @@ const Auth: NextPage = () => {
     roleId: number,
     checked: boolean,
     pageId: number,
-    rlPageList: RLPAGE[]
+    rlPageList?: RLPAGE[]
   ) => {
-    const rlPageIds = rlPageList.map((item) => item.id)
+    const rlPageIds = rlPageList ? rlPageList.map((item) => item.id) : []
     const pageIds = checked
       ? [...rlPageIds, pageId]
       : rlPageIds.filter((id) => id !== pageId)

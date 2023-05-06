@@ -26,10 +26,10 @@ const Layout = ({ children, noLayout }: Props) => {
     userState.user = null
   }
 
-  const onUserInfo = (event: MouseEvent<HTMLAnchorElement>) => {
-    event.preventDefault()
-    router.replace('/info')
-  }
+  // const onUserInfo = (event: MouseEvent<HTMLAnchorElement>) => {
+  //   event.preventDefault()
+  //   router.replace('/info')
+  // }
   const onMenuSelect: MenuProps['onSelect'] = ({ key }) => {
     router.push(key)
   }
@@ -46,7 +46,7 @@ const Layout = ({ children, noLayout }: Props) => {
 
   useEffect(() => {
     if (pathname === '/login' && state.user) {
-      router.replace('/')
+      router.replace(userState.showMenu[0]?.key)
     }
     if (pathname !== '/login' && !state.user) {
       router.replace('/login')
@@ -55,22 +55,27 @@ const Layout = ({ children, noLayout }: Props) => {
     }
   }, [router, state.user])
 
-  if (state.user) {
-    if (false) {
-      return (
-        <div style={{ textAlign: 'center' }}>
-          <Image
-            style={{ margin: '12vh auto 0' }}
-            src={png403}
-            alt="暂无权限"
-            width={600}
-          />
-          <p style={{ fontSize: '28px' }}>暂无权限</p>
-        </div>
-      )
-    }
-  }
   if (!loading) {
+    const pageCode = state.getCurrentPageCode(pathname)
+
+    if (state.user && pageCode && !state.openPage.includes(pathname)) {
+      if (!state.user.rlPages.find((find) => find.pageCode === pageCode)) {
+        return (
+          <>
+            <div style={{ textAlign: 'center' }}>
+              <Image
+                style={{ margin: '12vh auto 0' }}
+                src={png403}
+                alt="暂无权限"
+                width={600}
+              />
+              <p style={{ fontSize: '28px' }}>暂无权限</p>
+            </div>
+          </>
+        )
+      }
+    }
+
     return noLayout ? (
       <>{children}</>
     ) : (

@@ -9,7 +9,9 @@ import {
   Popconfirm,
   Modal,
   Select,
+  Badge,
 } from 'antd'
+import type { BadgeProps } from 'antd'
 import MainForm from '@/components/MainForm'
 import FadeIn from '@/components/FadeIn'
 import AuthWrap from '@/components/AuthWrap'
@@ -75,7 +77,12 @@ const Page: NextPage = () => {
     setData(list)
     setLoading(false)
   }
-
+  const getBadgeStatus = (record: Quotation) => {
+    const { quotedStatus } = record
+    return ({ 21: 'warning', 20: 'warning', 30: 'success' }[
+      String(quotedStatus)
+    ] || 'processing') as BadgeProps['status']
+  }
   useEffect(() => {
     init()
   }, [])
@@ -166,6 +173,16 @@ const Page: NextPage = () => {
                 title="状态"
                 dataIndex="quotedStatus"
                 key="quotedStatus"
+                render={(quotedStatus, record: Quotation) => {
+                  return (
+                    <Badge
+                      status={getBadgeStatus(record)}
+                      text={state.getLabel(
+                        record.buyer && quotedStatus === 10 ? 100 : quotedStatus
+                      )}
+                    />
+                  )
+                }}
               />
               <Table.Column title="业务员" dataIndex="clerk" key="clerk" />
               <Table.Column title="采购员" dataIndex="buyer" key="buyer" />

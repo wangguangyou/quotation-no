@@ -30,9 +30,22 @@ export interface Role {
   id: number
   roleName: string
   createTime: string
-  rlPageList: RLPAGE[]
+  rlPageList?: RLPAGE[]
 }
-
+export interface LoginRole {
+  id: number
+  roleName: string
+  roleCode: string
+  createTime: string
+}
+export type LoginUser = {
+  username: string
+  nickname: string
+  token: string
+  tokenExpire: number
+  rlPages: Readonly<RLPAGE[]>
+  rlRoles: Readonly<LoginRole[]>
+}
 export interface RLPAGE {
   id: number
   pageName: string
@@ -61,6 +74,7 @@ export interface Check {
   typeCode: string
   error: string
   hasError: boolean
+  value?: number
 }
 export interface User {
   id: number
@@ -182,4 +196,65 @@ export interface Quotation {
   profitPercentage: string // 利润率
   additional: boolean
   reject: boolean // 是香退回
+}
+
+export interface QuotationParam {
+  length: number
+  width: number
+  height: number
+  size: number
+  printMethod: PrintMethod
+  edgeProcessParam: EdgeProcessParam
+  materialParam: MaterialParam
+  primerParam: MaterialParam
+  packageParam: PackageParam
+  accyParam: AccyParam
+  taxRateParam: MaterialParam
+  badRateParam: BadRateParam
+  freightParam: MaterialParam
+  customerParam: CustomerParam
+}
+interface CustomerParam {
+  info: string
+  position: string
+  price: string
+}
+interface BadRateParam {
+  inputRate: number
+}
+
+interface AccyParam {
+  accyItemList: AccyItem[]
+}
+
+export interface AccyItem {
+  id: number
+  name: string
+  qty: number
+  price: number
+  material: string
+  size: string
+  print: string
+  other: string
+  perPrice: number
+}
+interface PackageParam {
+  row: number
+  col: number
+  layer: number
+}
+
+interface MaterialParam {
+  mapId: number
+}
+
+interface EdgeProcessParam {
+  code: string
+  needDriverChip: boolean
+}
+
+interface PrintMethod {
+  code: string
+  stencilCount: number
+  silkPrintCount: number
 }
