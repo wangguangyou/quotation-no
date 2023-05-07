@@ -9,10 +9,9 @@ import {
   Popconfirm,
   Modal,
   Select,
-  Badge,
 } from 'antd'
-import type { BadgeProps } from 'antd'
 import MainForm from '@/components/MainForm'
+import Detail from '@/components/no/Detail'
 import FadeIn from '@/components/FadeIn'
 import AuthWrap from '@/components/AuthWrap'
 import {
@@ -26,6 +25,7 @@ import { useRouter } from 'next/navigation'
 import dataState from '@/store/data'
 import userState from '@/store/user'
 import { useSnapshot } from 'valtio'
+import Status from '@/components/no/Status'
 
 type Quotation = unwrapResponse<typeof getQuotationPage>[number]
 
@@ -34,6 +34,7 @@ const Page: NextPage = () => {
   const currentUserState = useSnapshot(userState)
   const router = useRouter()
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [viewVisible, setViewVisible] = useState(false)
   const [currentRecord, setCurrentRecord] = useState<Quotation | undefined>(
     undefined
   )
@@ -83,12 +84,7 @@ const Page: NextPage = () => {
     setData(list)
     setLoading(false)
   }
-  const getBadgeStatus = (record: Quotation) => {
-    const { quotedStatus } = record
-    return ({ 21: 'warning', 20: 'warning', 30: 'success' }[
-      String(quotedStatus)
-    ] || 'processing') as BadgeProps['status']
-  }
+
   useEffect(() => {
     init()
   }, [])
@@ -101,18 +97,11 @@ const Page: NextPage = () => {
     setIsModalOpen(true)
   }
 
-  const handleCancel = () => {
-    setIsModalOpen(false)
-  }
   const rePut = async (record: Quotation) => {
     await setQuotationStatus(record.id, { newStatus: 1 })
   }
   const handleReject = async (record: Quotation) => {
     await setQuotationStatus(record.id, { newStatus: record.buyer ? 20 : 21 })
-  }
-  const onAction = () => {
-    init()
-    setIsModalOpen(false)
   }
 
   const expandedRowRender = (record: Quotation, index: number) => {
@@ -170,6 +159,7 @@ const Page: NextPage = () => {
           </AuthWrap>
           {
             <Table
+              scroll={{ x: 'max-content' }}
               expandable={{
                 expandedRowRender,
                 defaultExpandAllRows: false,
@@ -198,14 +188,7 @@ const Page: NextPage = () => {
                 dataIndex="quotedStatus"
                 key="quotedStatus"
                 render={(quotedStatus, record: Quotation) => {
-                  return (
-                    <Badge
-                      status={getBadgeStatus(record)}
-                      text={state.getLabel(
-                        record.buyer && quotedStatus === 10 ? 100 : quotedStatus
-                      )}
-                    />
-                  )
+                  return <Status record={record}></Status>
                 }}
               />
               <Table.Column title="业务员" dataIndex="clerk" key="clerk" />
@@ -230,18 +213,28 @@ const Page: NextPage = () => {
                 key="profitPercentage"
               />
               <Table.Column
-                fixed={true}
+                fixed={'right'}
                 title="最终价格"
                 dataIndex="quotedPrice"
                 key="quotedPrice"
                 render={(quotedPrice) => quotedPrice.toFixed(2)}
               />
               <Table.Column
+                fixed={'right'}
                 title="操作"
                 key="action"
                 width={160}
                 render={(_: any, record: Quotation) => (
                   <>
+                    <Button
+                      onClick={() => (
+                        setCurrentRecord(record), setViewVisible(true)
+                      )}
+                      size="small"
+                      type="link"
+                    >
+                      详情
+                    </Button>
                     {[0, 10, 11].includes(record.quotedStatus) &&
                       record.buyer && (
                         <AuthWrap auth="input-profit">
@@ -310,12 +303,26 @@ const Page: NextPage = () => {
         open={isModalOpen}
         footer={null}
         centered
-        width={'80%'}
-        onCancel={handleCancel}
+        width={'82%'}
+        onCancel={() => setIsModalOpen(false)}
       >
         <h1 className="mt-0">修改报价单</h1>
         <div className="overflow-y-auto max-h-80vh">
           <MainForm data={currentRecord}></MainForm>
+        </div>
+      </Modal>
+
+      <Modal
+        destroyOnClose
+        open={viewVisible}
+        footer={null}
+        centered
+        width={'82%'}
+        onCancel={() => setViewVisible(false)}
+      >
+        <h1 className="mt-0">报价单详情</h1>
+        <div className="overflow-y-auto max-h-80vh">
+          {currentRecord && <Detail data={currentRecord}></Detail>}
         </div>
       </Modal>
     </>

@@ -1,6 +1,6 @@
 import { GET, POST, PUT, DELETE } from './_config'
 import { Quotation, QuotationParam } from './types'
-
+import Detail from './types-detail'
 export const getQuotationPage = (
   data?: any
 ): JavaResponsePagination<Quotation[]> => GET('/quotation/page', data)
@@ -20,3 +20,8 @@ export const getQuotationParam = (
   id: Quotation['id'],
   data?: any
 ): JavaResponse<QuotationParam> => GET(`/quotation/param/${id}`, data)
+
+export const getQuotationDetail = (
+  id: Quotation['id'],
+  data?: any
+): JavaResponse<Detail> => GET(`/quotation/detail/${id}`, data)

@@ -14,18 +14,6 @@ import type {
 import type { AccyItem } from '@/api/types'
 type DataSourceType = Partial<AccyItem>
 
-// {
-//   id: React.Key
-//   name?: string
-//   qty?: number
-//   price?: number
-//   material?: string
-//   size?: string
-//   print?: string
-//   other?: string
-//   children?: DataSourceType[]
-// }
-
 type Props = {
   options: Option[]
   data?: AccyItem[]

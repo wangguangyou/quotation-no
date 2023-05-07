@@ -1,4 +1,5 @@
 import { GET, POST, PUT, DELETE } from './_config'
+import ComputedResult from './ComputedResult'
 import {
   Role,
   RLPAGE,
@@ -7,7 +8,7 @@ import {
   SubUnit,
   Check,
   LoginUser,
-  ComputedResult,
+  SimpleStats,
 } from './types'
 
 export const getLogin = (data: any): JavaResponse<LoginUser> =>
@@ -70,3 +71,6 @@ export const checkCompute = (data: any): JavaResponse<[Check, Check]> =>
 
 export const combCompute = (data: any): JavaResponse<ComputedResult> =>
   POST(`/compute/comb`, data)
+
+export const getSimpleStats = (data?: any): JavaResponse<SimpleStats> =>
+  GET(`/stats/simple`, data)

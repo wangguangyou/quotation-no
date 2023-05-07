@@ -1,38 +1,171 @@
-import React from 'react'
-import { Badge, Descriptions } from 'antd'
+import React, { useEffect, useState } from 'react'
+import dayjs from 'dayjs'
+import { Table, Descriptions, Tag } from 'antd'
+import { getQuotationDetail } from '@/api/quotation'
+import Status from './Status'
+type DetailType = unwrapResponse<typeof getQuotationDetail>
+import type { ColumnsType } from 'antd/es/table'
+import type { AccyItem, Quotation } from '@/api/types'
+type DataType = Partial<AccyItem>
 
-const Detail: React.FC = () => (
-  <Descriptions title="User Info" bordered>
-    <Descriptions.Item label="Product">Cloud Database</Descriptions.Item>
-    <Descriptions.Item label="Billing Mode">Prepaid</Descriptions.Item>
-    <Descriptions.Item label="Automatic Renewal">YES</Descriptions.Item>
-    <Descriptions.Item label="Order time">
-      2018-04-24 18:00:00
-    </Descriptions.Item>
-    <Descriptions.Item label="Usage Time" span={2}>
-      2019-04-24 18:00:00
-    </Descriptions.Item>
-    <Descriptions.Item label="Status" span={3}>
-      <Badge status="processing" text="Running" />
-    </Descriptions.Item>
-    <Descriptions.Item label="Negotiated Amount">$80.00</Descriptions.Item>
-    <Descriptions.Item label="Discount">$20.00</Descriptions.Item>
-    <Descriptions.Item label="Official Receipts">$60.00</Descriptions.Item>
-    <Descriptions.Item label="Config Info">
-      Data disk type: MongoDB
-      <br />
-      Database version: 3.4
-      <br />
-      Package: dds.mongo.mid
-      <br />
-      Storage space: 10 GB
-      <br />
-      Replication factor: 3
-      <br />
-      Region: East China 1
-      <br />
-    </Descriptions.Item>
-  </Descriptions>
-)
+const columns: ColumnsType<DataType> = [
+  {
+    title: '序号',
+    dataIndex: 'name',
+  },
+  {
+    title: '产品名称',
+    dataIndex: 'name',
+    ellipsis: true,
+  },
+  {
+    title: '数量',
+    dataIndex: 'qty',
+    ellipsis: true,
+  },
+  {
+    title: '材质',
+    dataIndex: 'material',
+    ellipsis: true,
+  },
+  {
+    title: '大小',
+    dataIndex: 'size',
+    ellipsis: true,
+  },
+  {
+    title: '印刷',
+    dataIndex: 'print',
+    ellipsis: true,
+  },
+  {
+    title: '其他要求',
+    dataIndex: 'other',
+    ellipsis: true,
+  },
+  {
+    title: '价格',
+    dataIndex: 'price',
+    ellipsis: true,
+  },
+]
+
+const Detail = ({ data }: { data: Quotation }) => {
+  const [values, setValues] = useState<DetailType>()
+  useEffect(() => {
+    ;(async () => {
+      if (data) {
+        const { data: values } = await getQuotationDetail(data.id)
+        setValues(values)
+      }
+    })()
+  }, [data])
+  return values ? (
+    <div className="pb-16">
+      <Descriptions title="基础信息" size="small" bordered>
+        <Descriptions.Item label="客户信息">
+          {values.quotation.customerInfo}
+        </Descriptions.Item>
+        <Descriptions.Item label="客户精准定位">
+          {values.quotation.customerPosition}
+        </Descriptions.Item>
+        <Descriptions.Item label="客户价格">
+          {values.quotation.customerPrice}
+        </Descriptions.Item>
+        <Descriptions.Item label="状态">
+          <Status record={values.quotation}></Status>
+        </Descriptions.Item>
+        <Descriptions.Item label="产品尺寸">
+          {values.quotation.length}*{values.quotation.width}*
+          {values.quotation.height}
+        </Descriptions.Item>
+        <Descriptions.Item label="不良率">
+          {/* {values?.computeResult.} */}
+          todo
+        </Descriptions.Item>
+
+        <Descriptions.Item label="订单数量">
+          {values.quotation.size}
+        </Descriptions.Item>
+        <Descriptions.Item label="印刷方式">
+          {/* {values.quotation.printMethod} */}
+          todo
+        </Descriptions.Item>
+        <Descriptions.Item label="边缘处理方式">
+          todo
+          <Tag className="ml-16" color="blue">
+            需要芯片
+          </Tag>
+          <Tag className="ml-16" color="gold">
+            不需要芯片
+          </Tag>
+        </Descriptions.Item>
+
+        <Descriptions.Item label="运输方式">
+          {/* {values.quotation} */}
+          todo
+        </Descriptions.Item>
+        <Descriptions.Item label="运费" span={2}>
+          {/* {values.quotation} */}
+          todo
+        </Descriptions.Item>
+        <Descriptions.Item label="发票类型">
+          {/* {values.quotation} */}
+          todo
+        </Descriptions.Item>
+        <Descriptions.Item label="税率" span={2}>
+          {/* {values.quotation} */}
+          todo
+        </Descriptions.Item>
+        <Descriptions.Item label="业务员">{data.clerk}</Descriptions.Item>
+        <Descriptions.Item label="采购员">{data.buyer}</Descriptions.Item>
+        <Descriptions.Item label="副经理">{data.manager}</Descriptions.Item>
+
+        <Descriptions.Item label="包装要求" span={3}>
+          列: {values.quotationPackage.row}
+          <br />
+          排: {values.quotationPackage.col}
+          <br />
+          层: {values.quotationPackage.layer}
+          <br />
+          整箱数量: {values.quotationPackage.pcs}
+          <br />
+          整箱毛重: {values.quotationPackage.weight}
+          <br />
+          整箱体积: {values.quotationPackage.volume}
+          <br />
+        </Descriptions.Item>
+        <Descriptions.Item label="成本价格">{data.costPrice}</Descriptions.Item>
+        <Descriptions.Item label="税后价格" span={2}>
+          {data.taxPrice}
+        </Descriptions.Item>
+        <Descriptions.Item label="利润">{data.profit}</Descriptions.Item>
+        <Descriptions.Item label="利润率" span={2}>
+          {data.profitPercentage}
+        </Descriptions.Item>
+        <Descriptions.Item label="最终价格">
+          {data.quotedPrice}
+        </Descriptions.Item>
+        <Descriptions.Item label="创建时间" span={2}>
+          {dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss')}
+        </Descriptions.Item>
+      </Descriptions>
+
+      <div className="color-rgba(0, 0, 0, 0.88) fw-600 text-16 my-20">
+        辅料明细
+      </div>
+
+      <Table
+        pagination={false}
+        rowKey="id"
+        columns={columns}
+        dataSource={values.accyList}
+        size="small"
+      />
+    </div>
+  ) : (
+    <></>
+  )
+}
 
 export default Detail

@@ -1,5 +1,5 @@
 declare module 'dayjs'
-
+declare module '@ant-design/plots'
 interface Base<T> {
   status: boolean
   data: T

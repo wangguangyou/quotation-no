@@ -262,3 +262,11 @@ interface PrintMethod {
   stencilCount: number
   silkPrintCount: number
 }
+export interface SimpleStats {
+  totalAmount: number
+  toBePerfectedAmount: number
+  completeAmount: number
+  allQuotation: number
+  toBePerfectedQuotation: number
+  completeQuotation: number
+}
