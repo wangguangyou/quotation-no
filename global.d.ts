@@ -32,3 +32,7 @@ interface Option {
   value: number | string
   label: string
 }
+
+interface RequestInit {
+  silence?: boolean
+}
