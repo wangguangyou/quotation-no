@@ -1,5 +1,6 @@
 import type { NextPageWithLayout } from './_app'
 import dynamic from 'next/dynamic'
+import FadeIn from '@/components/FadeIn'
 import { Card } from 'antd'
 import { Progress, Statistic } from 'antd'
 import { useEffect, useState } from 'react'
@@ -226,7 +227,7 @@ const Home: NextPageWithLayout = () => {
   } as any
 
   return (
-    <>
+    <FadeIn>
       <Card bordered={false} className="mb-24">
         <div className="grid grid-cols-4">
           <div className="flex items-center">
@@ -328,7 +329,7 @@ const Home: NextPageWithLayout = () => {
           </div>
         </div>
       </Card>
-    </>
+    </FadeIn>
   )
 }
 export default Home
