@@ -23,9 +23,9 @@ const AuthWrap = ({ children, auth }: Props) => {
   if (auth === 'input-profit' && !(state.isManager || state.isAdmin)) {
     return <></>
   }
-  if (auth === 'del-no' && !state.isAdmin) {
-    return <></>
-  }
+  // if (auth === 'del-no' && !state.isAdmin) {
+  //   return <></>
+  // }
   return <>{children}</>
 }
 export default AuthWrap

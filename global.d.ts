@@ -29,6 +29,6 @@ type unwrapResponse<T extends (...args: any) => any> = T extends (
   : unwrapBase<T>
 
 interface Option {
-  value: number
+  value: number | string
   label: string
 }

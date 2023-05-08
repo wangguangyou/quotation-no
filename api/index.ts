@@ -70,7 +70,7 @@ export const checkCompute = (data: any): JavaResponse<[Check, Check]> =>
   POST(`/compute/check`, data)
 
 export const combCompute = (data: any): JavaResponse<ComputedResult> =>
-  POST(`/compute/comb`, data)
+  POST(`/compute/comb`, data, { silence: true })
 
 export const getSimpleStats = (data?: any): JavaResponse<SimpleStats> =>
   GET(`/stats/simple`, data)

@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
-import { Table, Descriptions, Tag } from 'antd'
-import { getQuotationDetail } from '@/api/quotation'
+import FadeIn from '@/components/FadeIn'
+import { Table, Descriptions, Tag, Spin } from 'antd'
+import { getQuotationDetail, getQuotationParam } from '@/api/quotation'
 import Status from './Status'
 type DetailType = unwrapResponse<typeof getQuotationDetail>
+type QuotationParam = unwrapResponse<typeof getQuotationParam>
 import type { ColumnsType } from 'antd/es/table'
 import type { AccyItem, Quotation } from '@/api/types'
 type DataType = Partial<AccyItem>
@@ -52,6 +54,12 @@ const columns: ColumnsType<DataType> = [
 
 const Detail = ({ data }: { data: Quotation }) => {
   const [values, setValues] = useState<DetailType>()
+  const [raw, setRaw] = useState<QuotationParam>()
+  const getUnit = (unitCode: string) => {
+    return values?.computeResult.unitResult.find(
+      (find) => find.unitCode === unitCode
+    )
+  }
   useEffect(() => {
     ;(async () => {
       if (data) {
@@ -59,112 +67,141 @@ const Detail = ({ data }: { data: Quotation }) => {
         setValues(values)
       }
     })()
+    ;(async () => {
+      if (data) {
+        const { data: raw } = await getQuotationParam(data.id)
+        setRaw(raw)
+      }
+    })()
   }, [data])
-  return values ? (
-    <div className="pb-16">
-      <Descriptions title="基础信息" size="small" bordered>
-        <Descriptions.Item label="客户信息">
-          {values.quotation.customerInfo}
-        </Descriptions.Item>
-        <Descriptions.Item label="客户精准定位">
-          {values.quotation.customerPosition}
-        </Descriptions.Item>
-        <Descriptions.Item label="客户价格">
-          {values.quotation.customerPrice}
-        </Descriptions.Item>
-        <Descriptions.Item label="状态">
-          <Status record={values.quotation}></Status>
-        </Descriptions.Item>
-        <Descriptions.Item label="产品尺寸">
-          {values.quotation.length}*{values.quotation.width}*
-          {values.quotation.height}
-        </Descriptions.Item>
-        <Descriptions.Item label="不良率">
-          {/* {values?.computeResult.} */}
-          todo
-        </Descriptions.Item>
+  return (
+    <Spin spinning={!values}>
+      <div className="pb-16">
+        {values && (
+          <FadeIn>
+            <Descriptions title="基础信息" size="small" bordered>
+              <Descriptions.Item label="客户信息">
+                {values.quotation.customerInfo}
+              </Descriptions.Item>
+              <Descriptions.Item label="客户精准定位">
+                {values.quotation.customerPosition}
+              </Descriptions.Item>
+              <Descriptions.Item label="客户价格">
+                {values.quotation.customerPrice}
+              </Descriptions.Item>
+              <Descriptions.Item label="状态">
+                <Status record={values.quotation}></Status>
+              </Descriptions.Item>
+              <Descriptions.Item label="产品尺寸">
+                {values.quotation.length}*{values.quotation.width}*
+                {values.quotation.height}
+              </Descriptions.Item>
+              <Descriptions.Item label="不良率">
+                {getUnit('DefectiveRate')?.typeName}
+              </Descriptions.Item>
 
-        <Descriptions.Item label="订单数量">
-          {values.quotation.size}
-        </Descriptions.Item>
-        <Descriptions.Item label="印刷方式">
-          {/* {values.quotation.printMethod} */}
-          todo
-        </Descriptions.Item>
-        <Descriptions.Item label="边缘处理方式">
-          todo
-          <Tag className="ml-16" color="blue">
-            需要芯片
-          </Tag>
-          <Tag className="ml-16" color="gold">
-            不需要芯片
-          </Tag>
-        </Descriptions.Item>
+              <Descriptions.Item label="订单数量">
+                {values.quotation.size}
+              </Descriptions.Item>
+              <Descriptions.Item label="印刷方式">
+                {getUnit('PrintMethod')?.typeName}
+              </Descriptions.Item>
+              <Descriptions.Item label="边缘处理方式">
+                {getUnit('EdgeProcess')?.typeName}
+                {getUnit('EdgeProcess')?.typeCode ===
+                  'LuminousStripOverLockEP' &&
+                  (raw?.edgeProcessParam?.needDriverChip ? (
+                    <Tag className="ml-16" color="blue">
+                      需要芯片
+                    </Tag>
+                  ) : (
+                    <Tag className="ml-16" color="gold">
+                      不需要芯片
+                    </Tag>
+                  ))}
+              </Descriptions.Item>
+              {raw?.printMethod?.code === 'SilkPrintPM' && (
+                <>
+                  <Descriptions.Item label="网板次数">
+                    {raw?.printMethod.stencilCount}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="丝印次数" span={2}>
+                    {raw?.printMethod.silkPrintCount}
+                  </Descriptions.Item>
+                </>
+              )}
+              <Descriptions.Item label="面料">
+                {getUnit('PrintMethod')?.typeName}
+              </Descriptions.Item>
+              <Descriptions.Item label="底料" span={2}>
+                {getUnit('PrintMethod')?.typeName}
+              </Descriptions.Item>
+              <Descriptions.Item label="运输方式">
+                {values.transport || getUnit('Freight')?.typeName}
+              </Descriptions.Item>
+              <Descriptions.Item label="运费" span={2}>
+                {getUnit('Freight')?.value}
+              </Descriptions.Item>
+              <Descriptions.Item label="发票类型">
+                {values.tax || getUnit('TaxRate')?.typeName}
+              </Descriptions.Item>
+              <Descriptions.Item label="税率" span={2}>
+                {getUnit('TaxRate')?.value}
+              </Descriptions.Item>
+              <Descriptions.Item label="业务员">{data.clerk}</Descriptions.Item>
+              <Descriptions.Item label="采购员">{data.buyer}</Descriptions.Item>
+              <Descriptions.Item label="副经理">
+                {data.manager}
+              </Descriptions.Item>
 
-        <Descriptions.Item label="运输方式">
-          {/* {values.quotation} */}
-          todo
-        </Descriptions.Item>
-        <Descriptions.Item label="运费" span={2}>
-          {/* {values.quotation} */}
-          todo
-        </Descriptions.Item>
-        <Descriptions.Item label="发票类型">
-          {/* {values.quotation} */}
-          todo
-        </Descriptions.Item>
-        <Descriptions.Item label="税率" span={2}>
-          {/* {values.quotation} */}
-          todo
-        </Descriptions.Item>
-        <Descriptions.Item label="业务员">{data.clerk}</Descriptions.Item>
-        <Descriptions.Item label="采购员">{data.buyer}</Descriptions.Item>
-        <Descriptions.Item label="副经理">{data.manager}</Descriptions.Item>
+              <Descriptions.Item label="包装要求" span={3}>
+                列: {values.quotationPackage.row}
+                <br />
+                排: {values.quotationPackage.col}
+                <br />
+                层: {values.quotationPackage.layer}
+                <br />
+                整箱数量: {values.quotationPackage.pcs}
+                <br />
+                整箱毛重: {values.quotationPackage.weight}
+                <br />
+                整箱体积: {values.quotationPackage.volume}
+                <br />
+              </Descriptions.Item>
+              <Descriptions.Item label="成本价格">
+                {data.costPrice}
+              </Descriptions.Item>
+              <Descriptions.Item label="税后价格" span={2}>
+                {data.taxPrice}
+              </Descriptions.Item>
+              <Descriptions.Item label="利润">{data.profit}</Descriptions.Item>
+              <Descriptions.Item label="利润率" span={2}>
+                {data.profitPercentage || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="最终价格">
+                {data.quotedPrice}
+              </Descriptions.Item>
+              <Descriptions.Item label="创建时间" span={2}>
+                {dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss')}
+              </Descriptions.Item>
+            </Descriptions>
+            <div>
+              <div className="color-rgba(0, 0, 0, 0.88) fw-600 text-16 my-20">
+                辅料明细
+              </div>
 
-        <Descriptions.Item label="包装要求" span={3}>
-          列: {values.quotationPackage.row}
-          <br />
-          排: {values.quotationPackage.col}
-          <br />
-          层: {values.quotationPackage.layer}
-          <br />
-          整箱数量: {values.quotationPackage.pcs}
-          <br />
-          整箱毛重: {values.quotationPackage.weight}
-          <br />
-          整箱体积: {values.quotationPackage.volume}
-          <br />
-        </Descriptions.Item>
-        <Descriptions.Item label="成本价格">{data.costPrice}</Descriptions.Item>
-        <Descriptions.Item label="税后价格" span={2}>
-          {data.taxPrice}
-        </Descriptions.Item>
-        <Descriptions.Item label="利润">{data.profit}</Descriptions.Item>
-        <Descriptions.Item label="利润率" span={2}>
-          {data.profitPercentage}
-        </Descriptions.Item>
-        <Descriptions.Item label="最终价格">
-          {data.quotedPrice}
-        </Descriptions.Item>
-        <Descriptions.Item label="创建时间" span={2}>
-          {dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss')}
-        </Descriptions.Item>
-      </Descriptions>
-
-      <div className="color-rgba(0, 0, 0, 0.88) fw-600 text-16 my-20">
-        辅料明细
+              <Table
+                pagination={false}
+                rowKey="id"
+                columns={columns}
+                dataSource={values.accyList}
+                size="small"
+              />
+            </div>
+          </FadeIn>
+        )}
       </div>
-
-      <Table
-        pagination={false}
-        rowKey="id"
-        columns={columns}
-        dataSource={values.accyList}
-        size="small"
-      />
-    </div>
-  ) : (
-    <></>
+    </Spin>
   )
 }
 

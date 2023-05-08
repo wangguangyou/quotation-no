@@ -20,8 +20,8 @@ const fetch = ofetch.create({
       return Promise.reject()
     }
 
-    if (response._data.message) {
-      message.destroy()
+    if (!options.silence && response._data.message) {
+      // message.destroy()
       if (response._data.status) {
         message.success(response._data.message, 1.5)
       } else {

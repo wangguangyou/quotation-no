@@ -7,105 +7,55 @@ import {
   Checkbox,
   Alert,
   message,
+  Spin,
 } from 'antd'
 import AuthWrap from '@/components/AuthWrap'
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { getSubComputeUnit, checkCompute } from '@/api'
+import { checkCompute, combCompute } from '@/api'
 import { getQuotationParam } from '@/api/quotation'
-import { addQuotation } from '@/api/quotation'
+import { addQuotation, editQuotation } from '@/api/quotation'
 import userState from '@/store/user'
+import dataState from '@/store/data'
 import { useSnapshot } from 'valtio'
+import type { Store as DataStoreType } from '@/store/data'
 type QuotationParam = unwrapResponse<typeof getQuotationParam>
-import {
-  getMtAll,
-  getPrAll,
-  getTaxAll,
-  getFreAll,
-  getAccyAll,
-} from '@/api/param'
 
 import Excel from '@/components/no/Excel'
 type ExcelHandle = React.ElementRef<typeof Excel>
 
-const MainForm = ({ data }: { data?: any }) => {
+const MainForm = ({
+  data,
+  afterEdit,
+}: {
+  data?: any
+  afterEdit?: () => void
+}) => {
   const isEditMode = !!data
   const state = useSnapshot(userState)
+  const hotDataState = useSnapshot(dataState)
   const [messageApi, contextHolder] = message.useMessage()
   const excelRef = useRef<ExcelHandle>(null)
   const [form] = Form.useForm()
-  const [options, setOptions] = useState<Record<string, any>>({})
+  const [options, setOptions] = useState<DataStoreType['options']>()
   const [checkData, setCheckData] =
     useState<unwrapResponse<typeof checkCompute>>()
   const [badRateParamDisabled, setBadRateParamDisabled] = useState(true)
   const [showNeedDriverChip, setShowNeedDriverChip] = useState(false)
   const [isSilkPrintPM, setIsSilkPrintPM] = useState(false)
   const [alone, setAlone] = useState(false)
+  const [total, setTotal] = useState<number>()
   const [key, setKey] = useState(0)
-  const [excelData, setExcelData] = useState<
-    QuotationParam['accyParam']['accyItemList']
-  >([])
+  const [excelData, setExcelData] =
+    useState<QuotationParam['accyParam']['accyItemList']>()
 
   useEffect(() => {
-    Promise.all([
-      getFreAll(),
-      getMtAll(),
-      getPrAll(),
-      getTaxAll(),
-      getAccyAll(),
-      getSubComputeUnit('PrintMethod'),
-      getSubComputeUnit('EdgeProcess'),
-    ]).then(
-      ([
-        { data: fre },
-        { data: mt },
-        { data: pr },
-        { data: tax },
-        { data: accy },
-        { data: PrintMethod },
-        { data: EdgeProcess },
-      ]) => {
-        setOptions({
-          fre: fre.map(({ id, company }) => ({
-            value: id,
-            label: company,
-          })),
-          mt: mt.map(({ id, materialName }) => ({
-            value: id,
-            label: materialName,
-          })),
-          pr: pr.map(({ id, primerName }) => ({
-            value: id,
-            label: primerName,
-          })),
-          tax: tax.map(({ id, rateName }) => ({
-            value: id,
-            label: rateName,
-          })),
-          accy: accy.map(({ id, accyName }) => ({
-            value: id,
-            label: accyName,
-          })),
-          PrintMethod: PrintMethod.map(({ typeCode, typeName }) => ({
-            value: typeCode,
-            label: typeName,
-          })),
-          EdgeProcess: EdgeProcess.map(({ typeCode, typeName }) => ({
-            value: typeCode,
-            label: typeName,
-          })),
-        })
-      }
-    )
-    // initSelectData()
+    ;(async () => {
+      setOptions(await hotDataState.initOptions())
+    })()
   }, [])
 
-  const onFinish = async () => {
-    const [values, accyItemList] = await Promise.all([
-      form.validateFields(),
-      excelRef.current!.validator(),
-    ])
-
+  const getParams = (values: any, accyItemList: any) => {
     const {
       info,
       position,
@@ -127,14 +77,14 @@ const MainForm = ({ data }: { data?: any }) => {
       taxRateParam,
       freightParam,
     } = values
-    const params = {
+    return {
       clerkComplete: alone,
       length,
       width,
       height,
       size,
       printMethod:
-        printMethod == null
+        printMethod == '0'
           ? null
           : {
               code: printMethod,
@@ -147,20 +97,20 @@ const MainForm = ({ data }: { data?: any }) => {
         layer,
       },
       materialParam:
-        materialParam == null
+        materialParam == '0'
           ? null
           : {
               mapId: materialParam,
             },
-      freightParam:
-        freightParam == null
+      freightParam: {
+        mapId: freightParam,
+      },
+      primerParam:
+        primerParam == '0'
           ? null
           : {
-              mapId: freightParam,
+              mapId: primerParam,
             },
-      primerParam: {
-        mapId: primerParam,
-      },
       taxRateParam: {
         mapId: taxRateParam,
       },
@@ -168,7 +118,7 @@ const MainForm = ({ data }: { data?: any }) => {
         inputRate: badRateParam,
       },
       edgeProcessParam:
-        edgeProcessParam == null
+        edgeProcessParam == '0'
           ? null
           : {
               code: edgeProcessParam,
@@ -183,18 +133,50 @@ const MainForm = ({ data }: { data?: any }) => {
         accyItemList,
       },
     }
-    const { status } = await addQuotation(params)
+  }
+  const onFinish = async () => {
+    const [values, accyItemList] = await Promise.all([
+      form.validateFields(),
+      excelRef.current!.validator(),
+    ])
+
+    const params = getParams(values, accyItemList)
+    console.log(accyItemList)
+    const { status } = await (isEditMode
+      ? editQuotation(data.id, params)
+      : addQuotation(params))
     if (status) {
       messageApi.open({
         type: 'success',
         content: '操作成功',
       })
+
+      if (isEditMode) {
+        return afterEdit?.()
+      }
+
       setKey(Date.now())
-      // excelRef.current!.resetFields()
       form.resetFields()
     }
   }
+  const initTotal = (values: any, excelData?: any) => {
+    const { size, length, width, height } = values
+    size &&
+      length &&
+      width &&
+      height &&
+      combCompute(excelData ? getParams(values, excelData) : values)
+        .then(({ data: { finalTaxPrice } }) => {
+          setTotal(finalTaxPrice * size)
+        })
+        .catch(() => void 0)
+  }
+  const onExcelValuesChange = async (excelData: any) => {
+    initTotal(form.getFieldsValue(), excelData)
+  }
   const onValuesChange = async (changedValues: any, allValues: any) => {
+    initTotal(allValues, excelRef.current!.getRowsData())
+
     if ('printMethod' in changedValues) {
       setIsSilkPrintPM(changedValues.printMethod === 'SilkPrintPM')
     }
@@ -266,6 +248,7 @@ const MainForm = ({ data }: { data?: any }) => {
     ;(async () => {
       if (data) {
         const { data: raw } = await getQuotationParam(data.id)
+        initTotal(raw)
         setExcelData(raw.accyParam.accyItemList)
         form.setFieldsValue({
           info: raw.customerParam.info,
@@ -275,10 +258,10 @@ const MainForm = ({ data }: { data?: any }) => {
           length: raw.length,
           width: raw.width,
           height: raw.height,
-          printMethod: raw.printMethod.code,
-          edgeProcessParam: raw.edgeProcessParam.code,
-          materialParam: raw.materialParam.mapId,
-          primerParam: raw.primerParam.mapId,
+          printMethod: raw.printMethod?.code || '0',
+          edgeProcessParam: raw.edgeProcessParam?.code || '0',
+          materialParam: raw.materialParam?.mapId || 0,
+          primerParam: raw.primerParam?.mapId || 0,
           col: raw.packageParam.col,
           row: raw.packageParam.row,
           layer: raw.packageParam.layer,
@@ -442,7 +425,7 @@ const MainForm = ({ data }: { data?: any }) => {
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={options.PrintMethod}
+                    options={options?.PrintMethod}
                   />
                 </Form.Item>
                 <Form.Item
@@ -468,7 +451,7 @@ const MainForm = ({ data }: { data?: any }) => {
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={options.EdgeProcess}
+                    options={options?.EdgeProcess}
                   />
                 </Form.Item>
                 <AnimatePresence>
@@ -542,7 +525,7 @@ const MainForm = ({ data }: { data?: any }) => {
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={options.mt}
+                    options={options?.mt}
                   />
                 </Form.Item>
                 <Form.Item
@@ -553,18 +536,19 @@ const MainForm = ({ data }: { data?: any }) => {
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={options.pr}
+                    options={options?.pr}
                   />
                 </Form.Item>
               </div>
 
               <div className="text-#666 text-16 mb-12">辅料明细</div>
-              {options.accy && (!isEditMode || excelData) && (
+              {options?.accy && (!isEditMode || excelData) && (
                 <Excel
+                  onExcelValuesChange={onExcelValuesChange}
                   data={excelData}
                   key={key}
                   requireds={['print', 'material', 'size'].concat(
-                    alone || state.isBuyer ? ['price'] : []
+                    alone || (isEditMode && !state.isClerk) ? ['price'] : []
                   )}
                   ref={excelRef}
                   options={options.accy}
@@ -703,7 +687,7 @@ const MainForm = ({ data }: { data?: any }) => {
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={options.fre}
+                    options={options?.fre}
                   />
                 </Form.Item>
                 {/* <Form.Item
@@ -755,7 +739,7 @@ const MainForm = ({ data }: { data?: any }) => {
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={options.tax}
+                    options={options?.tax}
                   />
                 </Form.Item>
               </div>
@@ -768,19 +752,24 @@ const MainForm = ({ data }: { data?: any }) => {
      "
         >
           <div>
-            <span className="text-18 text-#888 mr-12 align-text-bottom">
-              合计
-            </span>
-            <span className="linear-text inline-block text-40 fw-600">
-              {(12323).toLocaleString()}
-            </span>
+            <div className="flex items-center pl-24">
+              <span className="text-18 text-#888 mr-16 align-text-bottom">
+                合计
+              </span>
 
-            <div className="mt-16">
+              <Spin spinning={!total} size="small">
+                <span className="linear-text inline-block text-40 fw-600">
+                  {total?.toLocaleString()}
+                </span>
+              </Spin>
+            </div>
+
+            <div className="mt-16 min-w-200">
               <Button
                 onClick={onFinish}
                 shape="round"
                 size="large"
-                // htmlType="submit"
+                htmlType="submit"
                 type="primary"
                 className="w-full"
               >

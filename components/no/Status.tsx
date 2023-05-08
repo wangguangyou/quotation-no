@@ -18,7 +18,9 @@ const Status = ({ record }: { record: Quotation }) => {
     <Badge
       status={getBadgeStatus(record)}
       text={state.getLabel(
-        record.buyer && record.quotedStatus === 10 ? 100 : record.quotedStatus
+        record.buyer && [0, 10].includes(record.quotedStatus)
+          ? 100
+          : record.quotedStatus
       )}
     />
   )

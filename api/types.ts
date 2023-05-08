@@ -207,10 +207,10 @@ export interface QuotationParam {
   width: number
   height: number
   size: number
-  printMethod: PrintMethod
-  edgeProcessParam: EdgeProcessParam
-  materialParam: MaterialParam
-  primerParam: MaterialParam
+  printMethod?: PrintMethod
+  edgeProcessParam?: EdgeProcessParam
+  materialParam?: MaterialParam
+  primerParam?: MaterialParam
   packageParam: PackageParam
   accyParam: AccyParam
   taxRateParam: MaterialParam
@@ -265,8 +265,10 @@ interface PrintMethod {
 export interface SimpleStats {
   totalAmount: number
   toBePerfectedAmount: number
+  toBeCompletedAmount: number
   completeAmount: number
   allQuotation: number
   toBePerfectedQuotation: number
+  toBeCompletedQuotation: number
   completeQuotation: number
 }

@@ -5,8 +5,9 @@ export default interface Detail {
   opRecords: OpRecord[]
   quotationPackage: QuotationPackage
   accyList: AccyItem[]
+  tax: string
+  transport: string
 }
-
 interface QuotationPackage {
   id: number
   quotedId: number

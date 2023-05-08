@@ -18,14 +18,16 @@ type Props = {
   options: Option[]
   data?: AccyItem[]
   requireds?: string[]
+  onExcelValuesChange?: (data: any) => void
 }
 type EditableCellRef = {
   validator: () => Promise<DataSourceType[]>
   resetFields: () => Promise<void>
+  getRowsData: () => any
 }
 
 const Excel = forwardRef<EditableCellRef, Props>(
-  ({ options, requireds, data }, ref) => {
+  ({ options, requireds, data, onExcelValuesChange }, ref) => {
     const [form] = Form.useForm()
 
     const editorFormRef = useRef<EditableFormInstance<DataSourceType>>()
@@ -39,29 +41,40 @@ const Excel = forwardRef<EditableCellRef, Props>(
       async resetFields() {
         form.resetFields()
       },
+      getRowsData() {
+        // return form.getFieldsValue()
+        return dataSource
+        return editorFormRef.current.getRowsData()
+      },
     }))
 
-    const defaultData = options.map(({ value, label }) => {
-      const find = data?.find((find) => find.id === value)
-      const ret: DataSourceType = {
-        name: label,
-        id: value,
-        qty: undefined,
-        price: undefined,
-        material: undefined,
-        size: undefined,
-        print: undefined,
-        other: undefined,
-      }
-      if (find) {
-        Object.assign(ret, {
-          ...find,
-        })
-      }
-      return ret
-    })
+    useEffect(() => {
+      data?.forEach((item: DataSourceType, index) => {
+        editorFormRef.current.setRowData(index, item)
+      })
+    }, [data])
     const [dataSource, setDataSource] = useState<readonly DataSourceType[]>(
-      () => defaultData
+      options.map(({ value, label }) => {
+        const find = data?.find((find) => find.id === value)
+
+        const ret: DataSourceType = {
+          name: label,
+          id: +value,
+          qty: undefined,
+          price: undefined,
+          material: undefined,
+          size: undefined,
+          print: undefined,
+          other: undefined,
+        }
+        if (find) {
+          Object.assign(ret, {
+            ...find,
+          })
+        }
+
+        return ret
+      })
     )
 
     const columns: ProColumns<DataSourceType>[] = [
@@ -158,6 +171,7 @@ const Excel = forwardRef<EditableCellRef, Props>(
           editableKeys,
           onValuesChange: (record: any, recordList: any) => {
             setDataSource(recordList)
+            onExcelValuesChange?.(recordList)
           },
           onChange: setEditableRowKeys,
         }}

@@ -9,6 +9,7 @@ import {
   Popconfirm,
   Modal,
   Select,
+  InputNumber,
 } from 'antd'
 import MainForm from '@/components/MainForm'
 import Detail from '@/components/no/Detail'
@@ -33,8 +34,11 @@ const Page: NextPage = () => {
   const state = useSnapshot(dataState)
   const currentUserState = useSnapshot(userState)
   const router = useRouter()
+
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [profitVisible, setProfitVisible] = useState(false)
   const [viewVisible, setViewVisible] = useState(false)
+
   const [currentRecord, setCurrentRecord] = useState<Quotation | undefined>(
     undefined
   )
@@ -98,10 +102,27 @@ const Page: NextPage = () => {
   }
 
   const rePut = async (record: Quotation) => {
-    await setQuotationStatus(record.id, { newStatus: 1 })
+    await setQuotationStatus(record.id, {
+      newStatus: record.quotedStatus === 21 ? 11 : 10,
+    })
+    init()
   }
   const handleReject = async (record: Quotation) => {
-    await setQuotationStatus(record.id, { newStatus: record.buyer ? 20 : 21 })
+    await setQuotationStatus(record.id, { newStatus: record.buyer ? 21 : 20 })
+    init()
+  }
+  const onProfitFinish = async (values: any) => {
+    await setQuotationStatus(currentRecord!.id, { newStatus: 30, ...values })
+    setProfitVisible(false)
+    init()
+  }
+  const getShowDel = (record: Quotation) => {
+    if (currentUserState.isAdmin) return true
+    if (currentUserState.isClerk) return record.quotedStatus === 20
+    if (currentUserState.isBuyer) return [20, 21].includes(record.quotedStatus)
+    if (currentUserState.isManager)
+      return [20, 21].includes(record.quotedStatus)
+    return false
   }
 
   const expandedRowRender = (record: Quotation, index: number) => {
@@ -223,7 +244,7 @@ const Page: NextPage = () => {
                 fixed={'right'}
                 title="操作"
                 key="action"
-                width={160}
+                width={150}
                 render={(_: any, record: Quotation) => (
                   <>
                     <Button
@@ -235,14 +256,7 @@ const Page: NextPage = () => {
                     >
                       详情
                     </Button>
-                    {[0, 10, 11].includes(record.quotedStatus) &&
-                      record.buyer && (
-                        <AuthWrap auth="input-profit">
-                          <Button size="small" type="link">
-                            填写利润
-                          </Button>
-                        </AuthWrap>
-                      )}
+
                     {![30].includes(record.quotedStatus) && (
                       <AuthWrap auth="edit-no">
                         <Button
@@ -250,10 +264,26 @@ const Page: NextPage = () => {
                           type="link"
                           onClick={() => editRecord(record)}
                         >
-                          修改
+                          {currentUserState.isClerk ? '修改' : '完善'}
                         </Button>
                       </AuthWrap>
                     )}
+
+                    {[0, 10, 11].includes(record.quotedStatus) &&
+                      record.buyer && (
+                        <AuthWrap auth="input-profit">
+                          <Button
+                            onClick={() => (
+                              setCurrentRecord(record), setProfitVisible(true)
+                            )}
+                            size="small"
+                            type="link"
+                          >
+                            填写利润
+                          </Button>
+                        </AuthWrap>
+                      )}
+
                     {[20, 21].includes(record.quotedStatus) && (
                       <AuthWrap auth="edit-no">
                         <Popconfirm
@@ -267,7 +297,7 @@ const Page: NextPage = () => {
                       </AuthWrap>
                     )}
 
-                    {![20, 21].includes(record.quotedStatus) && (
+                    {![20, 21, 30].includes(record.quotedStatus) && (
                       <AuthWrap auth="reject">
                         <Popconfirm
                           title={`确定驳回?`}
@@ -280,8 +310,7 @@ const Page: NextPage = () => {
                       </AuthWrap>
                     )}
 
-                    {(currentUserState.isAdmin ||
-                      [20, 21].includes(record.quotedStatus)) && (
+                    {getShowDel(record) && (
                       <Popconfirm
                         title={`确定删除?`}
                         onConfirm={() => handleDelete(record)}
@@ -306,9 +335,14 @@ const Page: NextPage = () => {
         width={'82%'}
         onCancel={() => setIsModalOpen(false)}
       >
-        <h1 className="mt-0">修改报价单</h1>
+        <h1 className="mt-0">
+          {currentUserState.isClerk ? '修改' : '完善'}报价单
+        </h1>
         <div className="overflow-y-auto max-h-80vh">
-          <MainForm data={currentRecord}></MainForm>
+          <MainForm
+            afterEdit={() => (setIsModalOpen(false), init())}
+            data={currentRecord}
+          ></MainForm>
         </div>
       </Modal>
 
@@ -321,9 +355,42 @@ const Page: NextPage = () => {
         onCancel={() => setViewVisible(false)}
       >
         <h1 className="mt-0">报价单详情</h1>
-        <div className="overflow-y-auto max-h-80vh">
+        <div className="overflow-y-auto max-h-80vh min-h-60vh">
           {currentRecord && <Detail data={currentRecord}></Detail>}
         </div>
+      </Modal>
+
+      <Modal
+        title={'填写利润'}
+        destroyOnClose
+        open={profitVisible}
+        footer={null}
+        centered
+        width={380}
+        onCancel={() => setProfitVisible(false)}
+      >
+        <Form
+          autoComplete="off"
+          onFinish={onProfitFinish}
+          className="mt-30 text-left mx-a"
+          layout="vertical"
+          style={{ maxWidth: 300 }}
+        >
+          <div className="mt-40"></div>
+          <Form.Item label="利润" name="profit" rules={[{ required: true }]}>
+            <InputNumber
+              min={0}
+              className="w-full"
+              autoComplete="off"
+              size="large"
+            />
+          </Form.Item>
+          <Form.Item>
+            <Button htmlType="submit" block type="primary">
+              确定
+            </Button>
+          </Form.Item>
+        </Form>
       </Modal>
     </>
   )
