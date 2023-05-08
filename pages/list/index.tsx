@@ -128,7 +128,9 @@ const Page: NextPage = () => {
   const expandedRowRender = (record: Quotation, index: number) => {
     return (
       <Descriptions className="pt-16 " column={5}>
-        <Descriptions.Item label="经理">{record.manager}</Descriptions.Item>
+        <Descriptions.Item label="经理">
+          {record.manager || '无'}
+        </Descriptions.Item>
         <Descriptions.Item label="客户信息">
           {record.customerInfo}
         </Descriptions.Item>
@@ -181,9 +183,10 @@ const Page: NextPage = () => {
           {
             <Table
               scroll={{ x: 'max-content' }}
+              key={+loading}
               expandable={{
                 expandedRowRender,
-                defaultExpandAllRows: false,
+                defaultExpandAllRows: true,
               }}
               onChange={onChange}
               pagination={{

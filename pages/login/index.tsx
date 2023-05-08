@@ -5,10 +5,11 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Gradient from '@/components/Gradient'
 import { useState } from 'react'
 import userState from '@/store/user'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
+import Router from 'next/router'
 import { getLogin } from '@/api'
-import { usePathname } from 'next/navigation'
 import { useSnapshot } from 'valtio'
+process.env
 const Login: NextPageWithLayout = () => {
   const state = useSnapshot(userState)
   const [isVisible, setIsVisible] = useState(true)
@@ -39,7 +40,7 @@ const Login: NextPageWithLayout = () => {
           >
             <div className="w-300 text-center mx-auto">
               <Image
-                src="/logo.svg"
+                src="/quotation-web/logo.svg"
                 alt="Logo"
                 width={100}
                 height={60}

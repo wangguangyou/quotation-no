@@ -8,7 +8,6 @@ import Layout from '@/components/layout'
 import type { AppProps } from 'next/app'
 import type { NextPage } from 'next'
 import { usePathname } from 'next/navigation'
-import { useEffect } from 'react'
 export type NextPageWithLayout<P = Record<string, unknown>, IP = P> = NextPage<
   P,
   IP
@@ -26,7 +25,7 @@ export default function App({ Component, pageProps }: AppPropsWithLayout) {
       <Head>
         <title>宁波品印智能报价软件</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/logo.svg" />
+        <link rel="icon" href={`/quotation-web/logo.svg`} />
       </Head>
       <ConfigProvider
         form={{

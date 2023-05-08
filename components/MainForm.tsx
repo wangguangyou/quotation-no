@@ -547,7 +547,7 @@ const MainForm = ({
                   onExcelValuesChange={onExcelValuesChange}
                   data={excelData}
                   key={key}
-                  requireds={['print', 'material', 'size'].concat(
+                  requireds={['name', 'print', 'material', 'size'].concat(
                     alone || (isEditMode && !state.isClerk) ? ['price'] : []
                   )}
                   ref={excelRef}

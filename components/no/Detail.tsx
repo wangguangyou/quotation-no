@@ -140,7 +140,7 @@ const Detail = ({ data }: { data: Quotation }) => {
                 {values.transport || getUnit('Freight')?.typeName}
               </Descriptions.Item>
               <Descriptions.Item label="运费" span={2}>
-                {getUnit('Freight')?.value}
+                {getUnit('Freight')?.value.toFixed(2)}
               </Descriptions.Item>
               <Descriptions.Item label="发票类型">
                 {values.tax || getUnit('TaxRate')?.typeName}
@@ -169,17 +169,19 @@ const Detail = ({ data }: { data: Quotation }) => {
                 <br />
               </Descriptions.Item>
               <Descriptions.Item label="成本价格">
-                {data.costPrice}
+                {data.costPrice.toFixed(2)}
               </Descriptions.Item>
               <Descriptions.Item label="税后价格" span={2}>
-                {data.taxPrice}
+                {data.taxPrice.toFixed(2)}
               </Descriptions.Item>
-              <Descriptions.Item label="利润">{data.profit}</Descriptions.Item>
+              <Descriptions.Item label="利润">
+                {data.profit.toFixed(2)}
+              </Descriptions.Item>
               <Descriptions.Item label="利润率" span={2}>
                 {data.profitPercentage || '-'}
               </Descriptions.Item>
               <Descriptions.Item label="最终价格">
-                {data.quotedPrice}
+                {data.quotedPrice.toFixed(2)}
               </Descriptions.Item>
               <Descriptions.Item label="创建时间" span={2}>
                 {dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss')}

@@ -83,7 +83,7 @@ const Layout = ({ children, noLayout }: Props) => {
         <Header className={styles.header}>
           <div className={styles.headerTitle}>
             <Image
-              src="/logo-white.svg"
+              src="/quotation-web/logo-white.svg"
               alt="Logo"
               width={60}
               height={40}

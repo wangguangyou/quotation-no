@@ -42,39 +42,35 @@ const Excel = forwardRef<EditableCellRef, Props>(
         form.resetFields()
       },
       getRowsData() {
-        // return form.getFieldsValue()
         return dataSource
         return editorFormRef.current.getRowsData()
       },
     }))
 
-    useEffect(() => {
-      data?.forEach((item: DataSourceType, index) => {
-        editorFormRef.current.setRowData(index, item)
-      })
-    }, [data])
+    // useEffect(() => {
+    //   data?.forEach((item: DataSourceType, index) => {
+    //     editorFormRef.current.setRowData(index, item)
+    //   })
+    // }, [data])
     const [dataSource, setDataSource] = useState<readonly DataSourceType[]>(
-      options.map(({ value, label }) => {
-        const find = data?.find((find) => find.id === value)
-
-        const ret: DataSourceType = {
-          name: label,
-          id: +value,
-          qty: undefined,
-          price: undefined,
-          material: undefined,
-          size: undefined,
-          print: undefined,
-          other: undefined,
+      () => {
+        if (data) {
+          return data.map((item, index) => ({ ...item, id: index + 1 }))
         }
-        if (find) {
-          Object.assign(ret, {
-            ...find,
-          })
-        }
-
-        return ret
-      })
+        return options.map(({ value, label }) => {
+          const ret: DataSourceType = {
+            name: label,
+            id: +value,
+            qty: undefined,
+            price: undefined,
+            material: undefined,
+            size: undefined,
+            print: undefined,
+            other: undefined,
+          }
+          return ret
+        })
+      }
     )
 
     const columns: ProColumns<DataSourceType>[] = [
@@ -88,8 +84,12 @@ const Excel = forwardRef<EditableCellRef, Props>(
       {
         title: '产品名称',
         dataIndex: 'name',
-        editable: false,
         ellipsis: true,
+        formItemProps: () => {
+          return {
+            rules: [{ required: requireds?.includes('name') }],
+          }
+        },
       },
       {
         title: '数量',
@@ -152,6 +152,14 @@ const Excel = forwardRef<EditableCellRef, Props>(
           }
         },
       },
+      {
+        title: '操作',
+        valueType: 'option',
+        width: 80,
+        render: () => {
+          return null
+        },
+      },
     ]
 
     return (
@@ -164,10 +172,18 @@ const Excel = forwardRef<EditableCellRef, Props>(
         }}
         value={dataSource}
         onChange={setDataSource}
-        recordCreatorProps={false}
+        recordCreatorProps={{
+          newRecordType: 'dataSource',
+          record: () => ({
+            id: Date.now(),
+          }),
+        }}
         editable={{
           form,
           type: 'multiple',
+          actionRender: (row, config, defaultDoms) => {
+            return [defaultDoms.delete]
+          },
           editableKeys,
           onValuesChange: (record: any, recordList: any) => {
             setDataSource(recordList)

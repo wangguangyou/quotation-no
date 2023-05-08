@@ -13,6 +13,7 @@ const nextConfig = {
       {
         source: '/api/:path*',
         destination: 'http://123.56.158.64:9001/:path*',
+        basePath: false,
       },
     ]
   },

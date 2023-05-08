@@ -229,9 +229,9 @@ const Home: NextPageWithLayout = () => {
   return (
     <FadeIn>
       <Card bordered={false} className="mb-24">
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-[25vw_repeat(3,minmax(0,1fr))]">
           <div className="flex items-center">
-            <div className="h-200 w-200  mr-24">
+            <div className="h-200 w-200  mr-16">
               <Pie {...countConfig0} />
             </div>
             <Statistic
