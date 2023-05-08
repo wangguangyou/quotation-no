@@ -243,7 +243,7 @@ const Home: NextPageWithLayout = () => {
           </div>
 
           <div className="flex items-center">
-            <div className="h-140 w-140  mr-24 pointer-events-none">
+            <div className="h-140 w-140  mr-16 pointer-events-none">
               <Pie {...countConfig1}></Pie>
             </div>
             <Statistic
@@ -256,7 +256,7 @@ const Home: NextPageWithLayout = () => {
           </div>
 
           <div className="flex items-center">
-            <div className="h-140 w-140 mr-24 pointer-events-none">
+            <div className="h-140 w-140 mr-16 pointer-events-none">
               <Pie {...countConfig2}></Pie>
             </div>
             <Statistic
@@ -269,7 +269,7 @@ const Home: NextPageWithLayout = () => {
           </div>
 
           <div className="flex items-center">
-            <div className="h-140 w-140 mr-24 pointer-events-none">
+            <div className="h-140 w-140 mr-16 pointer-events-none">
               <Pie {...countConfig3}></Pie>
             </div>
             <Statistic
@@ -284,7 +284,7 @@ const Home: NextPageWithLayout = () => {
       </Card>
 
       <Card bordered={false} className="px-48 py-24">
-        <div className="flex items-center ">
+        <div className="flex items-center flex-wrap min-h-400">
           <div className="space-y-16">
             {[
               { label: '已完成总金额', value: values?.completeAmount },
