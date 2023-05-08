@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   trailingSlash: false,
+  basePath: '/quotation-web',
   transpilePackages: ['antd'],
   images: {
     loader: 'akamai',
