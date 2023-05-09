@@ -62,6 +62,9 @@ input::placeholder,
 .ant-select-selection-placeholder {
   opacity: 0.5;
 }
+.ant-table-expanded-row-fixed {
+  padding:8px 16px!important;
+}
 .editable-cell {
   position: relative;
 }

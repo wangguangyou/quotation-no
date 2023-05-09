@@ -79,7 +79,12 @@ const Detail = ({ data }: { data: Quotation }) => {
       <div className="pb-16">
         {values && (
           <FadeIn>
-            <Descriptions title="基础信息" size="small" bordered>
+            <Descriptions
+              contentStyle={{ maxWidth: '300px' }}
+              title="基础信息"
+              size="small"
+              bordered
+            >
               <Descriptions.Item label="客户信息">
                 {values.quotation.customerInfo}
               </Descriptions.Item>

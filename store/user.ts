@@ -1,4 +1,4 @@
-import { proxy, subscribe, snapshot } from 'valtio'
+import { proxy, snapshot } from 'valtio'
 import { subscribeKey } from 'valtio/utils'
 import type { RLPAGE, LoginUser as User, LoginRole } from '@/api/types'
 import { getPageList } from '@/api'

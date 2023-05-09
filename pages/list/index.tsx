@@ -10,7 +10,9 @@ import {
   Modal,
   Select,
   InputNumber,
+  Typography,
 } from 'antd'
+const { Paragraph, Text } = Typography
 import MainForm from '@/components/MainForm'
 import Detail from '@/components/no/Detail'
 import FadeIn from '@/components/FadeIn'
@@ -127,23 +129,34 @@ const Page: NextPage = () => {
 
   const expandedRowRender = (record: Quotation, index: number) => {
     return (
-      <Descriptions className="pt-16 " column={5}>
-        <Descriptions.Item label="经理">
-          {record.manager || '无'}
-        </Descriptions.Item>
-        <Descriptions.Item label="客户信息">
-          {record.customerInfo}
-        </Descriptions.Item>
-        <Descriptions.Item label="客户精准定位">
-          {record.customerPosition}
-        </Descriptions.Item>
-        <Descriptions.Item label="客户价格">
-          {record.customerPrice}
-        </Descriptions.Item>
-        <Descriptions.Item label="创建时间">
-          {dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss')}
-        </Descriptions.Item>
-      </Descriptions>
+      record && (
+        <Descriptions
+          contentStyle={{ width: 0, paddingRight: '8px' }}
+          className="pt-8"
+          size="small"
+          column={5}
+        >
+          <Descriptions.Item label="经理">
+            {record.manager || '无'}
+          </Descriptions.Item>
+          <Descriptions.Item label="客户信息">
+            <Text ellipsis={{ tooltip: record.customerInfo }}>
+              {record.customerInfo}
+            </Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="客户精准定位">
+            <Text ellipsis={{ tooltip: record.customerPosition }}>
+              {record.customerPosition}
+            </Text>
+          </Descriptions.Item>
+          <Descriptions.Item label="客户价格">
+            {record.customerPrice}
+          </Descriptions.Item>
+          <Descriptions.Item label="创建时间">
+            {dayjs(record.createTime).format('YYYY-MM-DD HH:mm:ss')}
+          </Descriptions.Item>
+        </Descriptions>
+      )
     )
   }
   return (
