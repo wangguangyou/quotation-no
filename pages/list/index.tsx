@@ -12,7 +12,7 @@ import {
   InputNumber,
   Typography,
 } from 'antd'
-const { Paragraph, Text } = Typography
+const { Text } = Typography
 import MainForm from '@/components/MainForm'
 import Detail from '@/components/no/Detail'
 import FadeIn from '@/components/FadeIn'
@@ -29,6 +29,7 @@ import dataState from '@/store/data'
 import userState from '@/store/user'
 import { useSnapshot } from 'valtio'
 import Status from '@/components/no/Status'
+import { useSearchParams } from 'next/navigation'
 
 type Quotation = unwrapResponse<typeof getQuotationPage>[number]
 
@@ -36,6 +37,9 @@ const Page: NextPage = () => {
   const state = useSnapshot(dataState)
   const currentUserState = useSnapshot(userState)
   const router = useRouter()
+
+  const searchParams = useSearchParams()
+  const status = searchParams.get('status')
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [profitVisible, setProfitVisible] = useState(false)
@@ -163,7 +167,12 @@ const Page: NextPage = () => {
     <>
       <FadeIn>
         <Card bordered={false}>
-          <Form layout="inline" onFinish={onFinish} autoComplete="off">
+          <Form
+            initialValues={{ status }}
+            layout="inline"
+            onFinish={onFinish}
+            autoComplete="off"
+          >
             <Form.Item label="业务员" name="clerk">
               <Input allowClear />
             </Form.Item>

@@ -4,6 +4,7 @@ import FadeIn from '@/components/FadeIn'
 import { Card } from 'antd'
 import { Progress, Statistic } from 'antd'
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { getSimpleStats } from '@/api'
 type SimpleStats = unwrapResponse<typeof getSimpleStats>
 const Pie = dynamic(() => import('@ant-design/plots').then(({ Pie }) => Pie), {
@@ -19,6 +20,7 @@ const formatter = (value: any, precision?: any) => (
 )
 
 const Home: NextPageWithLayout = () => {
+  const router = useRouter()
   const [values, setValues] = useState<SimpleStats>()
   useEffect(() => {
     ;(async () => {
@@ -26,6 +28,9 @@ const Home: NextPageWithLayout = () => {
       setValues(values)
     })()
   }, [])
+  const jumpHandler = (status?: number) => {
+    // router.push(status ? `/list?status=${status}` : `/list`)
+  }
 
   const countConfig0 = {
     data: [
@@ -225,7 +230,6 @@ const Home: NextPageWithLayout = () => {
       },
     ],
   } as any
-
   return (
     <FadeIn>
       <Card bordered={false} className="mb-24">
@@ -234,52 +238,60 @@ const Home: NextPageWithLayout = () => {
             <div className="h-200 w-200  mr-16">
               <Pie {...countConfig0} />
             </div>
-            <Statistic
-              className="place-self-center text-20"
-              valueStyle={{ fontSize: 48 }}
-              title="报价单总数"
-              value={values?.allQuotation}
-              formatter={formatter}
-            />
+            <div onClick={() => jumpHandler()}>
+              <Statistic
+                className="place-self-center text-20"
+                valueStyle={{ fontSize: 48 }}
+                title="报价单总数"
+                value={values?.allQuotation}
+                formatter={formatter}
+              />
+            </div>
           </div>
 
           <div className="flex items-center">
             <div className="h-140 w-140  mr-16 pointer-events-none">
               <Pie {...countConfig1}></Pie>
             </div>
-            <Statistic
-              className="flex-1"
-              title="已完成报价单"
-              value={values?.completeQuotation}
-              precision={2}
-              formatter={formatter}
-            />
+            <div onClick={() => jumpHandler(30)}>
+              <Statistic
+                className="flex-1"
+                title="已完成报价单"
+                value={values?.completeQuotation}
+                precision={2}
+                formatter={formatter}
+              />
+            </div>
           </div>
 
           <div className="flex items-center">
             <div className="h-140 w-140 mr-16 pointer-events-none">
               <Pie {...countConfig2}></Pie>
             </div>
-            <Statistic
-              className="flex-1"
-              title="待完善报价单"
-              value={values?.toBePerfectedQuotation}
-              precision={2}
-              formatter={formatter}
-            />
+            <div onClick={() => jumpHandler()}>
+              <Statistic
+                className="flex-1"
+                title="待完善报价单"
+                value={values?.toBePerfectedQuotation}
+                precision={2}
+                formatter={formatter}
+              />
+            </div>
           </div>
 
           <div className="flex items-center">
             <div className="h-140 w-140 mr-16 pointer-events-none">
               <Pie {...countConfig3}></Pie>
             </div>
-            <Statistic
-              className="flex-1"
-              title="待完成报价单"
-              value={values?.toBeCompletedQuotation}
-              precision={2}
-              formatter={formatter}
-            />
+            <div onClick={() => jumpHandler()}>
+              <Statistic
+                className="flex-1"
+                title="待完成报价单"
+                value={values?.toBeCompletedQuotation}
+                precision={2}
+                formatter={formatter}
+              />
+            </div>
           </div>
         </div>
       </Card>
