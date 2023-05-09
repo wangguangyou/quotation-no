@@ -4,6 +4,8 @@ import FadeIn from '@/components/FadeIn'
 import { Table, Descriptions, Tag, Spin } from 'antd'
 import { getQuotationDetail, getQuotationParam } from '@/api/quotation'
 import Status from './Status'
+import dataState from '@/store/data'
+import { useSnapshot } from 'valtio'
 type DetailType = unwrapResponse<typeof getQuotationDetail>
 type QuotationParam = unwrapResponse<typeof getQuotationParam>
 import type { ColumnsType } from 'antd/es/table'
@@ -53,6 +55,7 @@ const columns: ColumnsType<DataType> = [
 ]
 
 const Detail = ({ data }: { data: Quotation }) => {
+  const hotDataState = useSnapshot(dataState)
   const [values, setValues] = useState<DetailType>()
   const [raw, setRaw] = useState<QuotationParam>()
   const getUnit = (unitCode: string) => {
@@ -74,6 +77,11 @@ const Detail = ({ data }: { data: Quotation }) => {
       }
     })()
   }, [data])
+
+  useEffect(() => {
+    hotDataState.initOptions()
+  }, [])
+
   return (
     <Spin spinning={!values}>
       <div className="pb-16">
@@ -136,10 +144,10 @@ const Detail = ({ data }: { data: Quotation }) => {
                 </>
               )}
               <Descriptions.Item label="面料">
-                {getUnit('PrintMethod')?.typeName}
+                {hotDataState.getOptionsLabel('mt', raw?.materialParam?.mapId)}
               </Descriptions.Item>
               <Descriptions.Item label="底料" span={2}>
-                {getUnit('PrintMethod')?.typeName}
+                {hotDataState.getOptionsLabel('pr', raw?.primerParam?.mapId)}
               </Descriptions.Item>
               <Descriptions.Item label="运输方式">
                 {values.transport || getUnit('Freight')?.typeName}
@@ -153,10 +161,14 @@ const Detail = ({ data }: { data: Quotation }) => {
               <Descriptions.Item label="税率" span={2}>
                 {getUnit('TaxRate')?.value}
               </Descriptions.Item>
-              <Descriptions.Item label="业务员">{data.clerk}</Descriptions.Item>
-              <Descriptions.Item label="采购员">{data.buyer}</Descriptions.Item>
+              <Descriptions.Item label="业务员">
+                {data.clerk || '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label="采购员">
+                {data.buyer || '-'}
+              </Descriptions.Item>
               <Descriptions.Item label="副经理">
-                {data.manager}
+                {data.manager || '-'}
               </Descriptions.Item>
 
               <Descriptions.Item label="包装要求" span={3}>

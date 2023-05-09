@@ -13,6 +13,7 @@ export type Store = {
   getLabel: (value: number) => string | undefined
   options?: Record<string, Option[]>
   initOptions: () => Promise<Store['options']>
+  getOptionsLabel: (key: string, value?: string | number) => string | undefined
 }
 
 class State {
@@ -112,6 +113,14 @@ class State {
         })
       }
     )
+  }
+  getOptionsLabel(key: string, value?: number | string) {
+    if (this.options) {
+      const target = this.options[key]
+      return target?.find((find) => find.value == value)?.label
+    } else {
+      this.initOptions()
+    }
   }
 }
 const state = proxy<Store>(new State())
