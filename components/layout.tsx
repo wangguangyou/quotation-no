@@ -14,7 +14,7 @@ type Props = {
   children: ReactNode
   noLayout?: boolean
 }
-export const MyFooter = ({ style }: { style: React.CSSProperties }) => {
+export const MyFooter = ({ style }: { style?: React.CSSProperties }) => {
   return (
     <Footer
       style={{
