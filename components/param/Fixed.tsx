@@ -92,6 +92,11 @@ const Component = () => {
                 <div>{dayjs(updateTime).format('YYYY-MM-DD HH:mm:ss')}</div>
               )}
             />
+            <Table.Column
+              title="操作人"
+              dataIndex="createUser"
+              key="createUser"
+            />
 
             <Table.Column
               title="操作"

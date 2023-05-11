@@ -26,11 +26,28 @@ const childVariants = {
     },
   },
 }
-const FadeIn = ({ children }: { children: ReactNode | ReactNode[] }) => {
+const FadeIn = ({
+  children,
+  className,
+  childrenClass,
+}: {
+  children: ReactNode | ReactNode[]
+  className?: string
+  childrenClass?: (string | undefined)[]
+}) => {
   return Array.isArray(children) ? (
-    <motion.div initial="hidden" animate="show" variants={variants}>
+    <motion.div
+      className={className}
+      initial="hidden"
+      animate="show"
+      variants={variants}
+    >
       {children.map((child, index) => (
-        <motion.div key={index} variants={childVariants}>
+        <motion.div
+          className={childrenClass?.[index]}
+          key={index}
+          variants={childVariants}
+        >
           {child}
         </motion.div>
       ))}

@@ -153,6 +153,16 @@ const Excel = forwardRef<EditableCellRef, Props>(
         },
       },
       {
+        title: '辅料产品单价',
+        editable: false,
+        ellipsis: true,
+        render: (_, record) => {
+          const { qty, price } = record
+          if (!qty || !price) return '-'
+          return qty * price
+        },
+      },
+      {
         title: '操作',
         valueType: 'option',
         width: 80,

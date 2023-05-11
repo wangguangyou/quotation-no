@@ -2,31 +2,44 @@ import Image from 'next/image'
 import type { NextPageWithLayout } from '../_app'
 import { Form, Input, Button } from 'antd'
 import { AnimatePresence, motion } from 'framer-motion'
+import { MyFooter } from '@/components/layout'
 import Gradient from '@/components/Gradient'
 import { useState } from 'react'
 import userState from '@/store/user'
 import { useRouter, usePathname } from 'next/navigation'
-import Router from 'next/router'
 import { getLogin } from '@/api'
 import { useSnapshot } from 'valtio'
 process.env
 const Login: NextPageWithLayout = () => {
   const state = useSnapshot(userState)
   const [isVisible, setIsVisible] = useState(true)
+  const [loading, setLoading] = useState(false)
   const pathname = usePathname()
   const router = useRouter()
 
   const onFinish = async (values: any) => {
     // setIsVisible(false)
-    const { data } = await getLogin(values)
-    userState.user = data
-    router.push(state.showMenu[0]?.key || '/')
+    setLoading(true)
+    try {
+      const { data } = await getLogin(values)
+      userState.user = data
+      router.push(state.showMenu[0]?.key || '/')
+    } catch (error) {
+    } finally {
+      setLoading(false)
+    }
+  }
+  const style: React.CSSProperties = {
+    color: '#fff',
   }
 
   return (
     <div className="bg-#f1f3f4 h-100vh relative overflow-hidden">
-      <div className="absoulte h-full w-full">
+      <div className="absolute h-full w-full">
         <Gradient />
+        <div className="absolute bottom-0 left-0 right-0">
+          <MyFooter style={style}></MyFooter>
+        </div>
       </div>
       <AnimatePresence>
         {isVisible && (
@@ -73,7 +86,12 @@ const Login: NextPageWithLayout = () => {
                   <Input.Password size="large" placeholder="请输入密码" />
                 </Form.Item>
                 <Form.Item>
-                  <Button htmlType="submit" block type="primary">
+                  <Button
+                    loading={loading}
+                    htmlType="submit"
+                    block
+                    type="primary"
+                  >
                     登录
                   </Button>
                 </Form.Item>

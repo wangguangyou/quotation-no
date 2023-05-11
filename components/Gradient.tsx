@@ -32,7 +32,12 @@ const Gradient = () => {
     }
   }, [])
 
-  return <motion.div style={{ background, height: '100%' }}></motion.div>
+  return (
+    <motion.div
+      id="Gradient"
+      style={{ background, height: '100%' }}
+    ></motion.div>
+  )
 }
 
 export default Gradient

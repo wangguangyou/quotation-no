@@ -231,7 +231,7 @@ const Home: NextPageWithLayout = () => {
     ],
   } as any
   return (
-    <FadeIn>
+    <FadeIn className="h-full flex flex-col" childrenClass={[, 'flex-1']}>
       <Card bordered={false} className="mb-24">
         <div className="grid grid-cols-[25vw_repeat(3,minmax(0,1fr))]">
           <div className="flex items-center">
@@ -296,7 +296,7 @@ const Home: NextPageWithLayout = () => {
         </div>
       </Card>
 
-      <Card bordered={false} className="px-48 py-24">
+      <Card bordered={false} className="px-48 py-24 h-full">
         <div className="flex items-center flex-wrap min-h-400">
           <div className="space-y-16">
             {[
@@ -321,7 +321,9 @@ const Home: NextPageWithLayout = () => {
                   showInfo={false}
                 />
                 <span className="ws-nowrap flex-1">
-                  {value ? Number(value.toFixed(2)).toLocaleString() : '0'}
+                  {value
+                    ? `￥ ${Number(value.toFixed(2)).toLocaleString()}`
+                    : '0'}
                 </span>
               </div>
             ))}
@@ -331,6 +333,7 @@ const Home: NextPageWithLayout = () => {
               <Pie {...totalConfig0}></Pie>
             </div>
             <Statistic
+              prefix="￥"
               className="text-center"
               valueStyle={{ fontSize: 48 }}
               title="报价单总金额"

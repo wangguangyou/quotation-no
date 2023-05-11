@@ -57,13 +57,29 @@ const Page: NextPage = () => {
     total: 0,
   })
 
-  const onFinish = (values: any) => {
-    const { status } = values
-    values.complete = false
-    if (status === 100) {
-      values = { ...values, status: 10, complete: true }
+  const onFinish = (values?: any) => {
+    if (values) {
+      const { status } = values
+      values.complete = false
+      if (status === 100) {
+        values = { ...values, status: 10, complete: true }
+      }
     }
-    setQuery((val) => Object.assign(val, values))
+    if (values) {
+      setQuery((val) => Object.assign(val, values))
+    } else {
+      setQuery((val) =>
+        Object.assign(
+          val,
+          Object.keys(val).reduce(
+            (pre: Record<string, any>, cur: string) => (
+              (pre[cur] = undefined), pre
+            ),
+            val
+          )
+        )
+      )
+    }
     setPagination((val) => Object.assign(val, { current: 1 }))
     init()
   }
@@ -138,8 +154,14 @@ const Page: NextPage = () => {
           contentStyle={{ width: 0, paddingRight: '8px' }}
           className="pt-8"
           size="small"
-          column={5}
+          column={7}
         >
+          <Descriptions.Item label="业务员">
+            {record.clerk || '无'}
+          </Descriptions.Item>
+          <Descriptions.Item label="采购员">
+            {record.buyer || '无'}
+          </Descriptions.Item>
           <Descriptions.Item label="经理">
             {record.manager || '无'}
           </Descriptions.Item>
@@ -171,15 +193,17 @@ const Page: NextPage = () => {
             initialValues={{ status }}
             layout="inline"
             onFinish={onFinish}
+            onReset={() => onFinish()}
             autoComplete="off"
+            className="mb-[-24px]!"
           >
-            <Form.Item label="业务员" name="clerk">
+            <Form.Item className="mb-24!" label="业务员" name="clerk">
               <Input allowClear />
             </Form.Item>
-            <Form.Item label="采购员" name="buyer">
+            <Form.Item className="mb-24!" label="采购员" name="buyer">
               <Input allowClear />
             </Form.Item>
-            <Form.Item label="状态" name="status">
+            <Form.Item className="mb-24!" label="状态" name="status">
               <Select
                 allowClear
                 className="w-183!"
@@ -187,10 +211,20 @@ const Page: NextPage = () => {
               />
             </Form.Item>
 
-            <Form.Item>
+            <Form.Item className="mb-24!" label="客户信息" name="cInfo">
+              <Input allowClear />
+            </Form.Item>
+            <Form.Item className="mb-24!" label="客户精准定位" name="cPosition">
+              <Input allowClear />
+            </Form.Item>
+
+            <Form.Item className="mb-24!">
               <Button type="primary" htmlType="submit">
                 查询
               </Button>
+            </Form.Item>
+            <Form.Item className="mb-24!">
+              <Button htmlType="reset">重置</Button>
             </Form.Item>
           </Form>
         </Card>
@@ -214,6 +248,7 @@ const Page: NextPage = () => {
               pagination={{
                 ...pagination,
                 showTotal: (total) => `共${total}条`,
+                showSizeChanger: true,
               }}
               bordered
               rowKey="id"
@@ -237,30 +272,66 @@ const Page: NextPage = () => {
                   return <Status record={record}></Status>
                 }}
               />
-              <Table.Column title="业务员" dataIndex="clerk" key="clerk" />
-              <Table.Column title="采购员" dataIndex="buyer" key="buyer" />
-
               <Table.Column
-                title="成本价格"
-                dataIndex="costPrice"
-                key="costPrice"
-                render={(costPrice) => costPrice.toFixed(2)}
+                ellipsis={true}
+                title="面料"
+                dataIndex="materialParam"
+                key="materialParam"
               />
               <Table.Column
-                title="税后价格"
+                ellipsis={true}
+                title="底料"
+                dataIndex="primerParam"
+                key="primerParam"
+              />
+              <Table.Column
+                ellipsis={true}
+                title="印刷"
+                dataIndex="printMethod"
+                key="printMethod"
+              />
+              <Table.Column
+                ellipsis={true}
+                title="边缘处理"
+                dataIndex="edgeProcessParam"
+                key="edgeProcessParam"
+              />
+              <Table.Column
+                ellipsis={true}
+                title="运输方式"
+                dataIndex="freightParam"
+                key="freightParam"
+              />
+
+              {!userState.isClerk && (
+                <Table.Column
+                  title="成本单价"
+                  dataIndex="costPrice"
+                  key="costPrice"
+                  render={(costPrice) => costPrice.toFixed(2)}
+                />
+              )}
+
+              <Table.Column
+                title="税后单价"
                 dataIndex="taxPrice"
                 key="taxPrice"
                 render={(taxPrice) => taxPrice.toFixed(2)}
               />
-              <Table.Column title="利润" dataIndex="profit" key="profit" />
-              <Table.Column
-                title="利润率"
-                dataIndex="profitPercentage"
-                key="profitPercentage"
-              />
+              {!userState.isClerk && (
+                <>
+                  <Table.Column title="利润" dataIndex="profit" key="profit" />
+                  <Table.Column
+                    title="利润率"
+                    dataIndex="profitPercentage"
+                    key="profitPercentage"
+                  />
+                </>
+              )}
+
               <Table.Column
                 fixed={'right'}
-                title="最终价格"
+                title="总价"
                 dataIndex="quotedPrice"
                 key="quotedPrice"
                 render={(quotedPrice) => quotedPrice.toFixed(2)}

@@ -2,10 +2,10 @@ import { ReactNode, useEffect, useState } from 'react'
 import type { MouseEvent } from 'react'
 import userState from '@/store/user'
 import { usePathname, useRouter } from 'next/navigation'
-import { Layout as ALayout, Menu, Avatar, Dropdown } from 'antd'
+import { Layout as ALayout, Menu, Avatar, Dropdown, Button, Space } from 'antd'
 import type { MenuProps } from 'antd'
 import styles from '@/styles/Layout.module.css'
-const { Header, Sider, Content } = ALayout
+const { Header, Sider, Content, Footer } = ALayout
 import Image from 'next/image'
 import png403 from '@/assets/403.svg'
 import { useSnapshot } from 'valtio'
@@ -13,6 +13,24 @@ import { useSnapshot } from 'valtio'
 type Props = {
   children: ReactNode
   noLayout?: boolean
+}
+export const MyFooter = ({ style }: { style: React.CSSProperties }) => {
+  return (
+    <Footer
+      style={{
+        textAlign: 'center',
+        color: '#aaa',
+        background: 'transparent',
+        ...style,
+      }}
+    >
+      <Space>
+        <span>技术支持：浙江晨阳软件</span>
+        <span>联系电话：13454713815</span>
+        <span>当前版本：V1.0.1</span>
+      </Space>
+    </Footer>
+  )
 }
 const Layout = ({ children, noLayout }: Props) => {
   const state = useSnapshot(userState)
@@ -46,7 +64,8 @@ const Layout = ({ children, noLayout }: Props) => {
 
   useEffect(() => {
     if (pathname === '/login' && state.user) {
-      router.replace(userState.showMenu[0]?.key)
+      const key = userState.showMenu[0]?.key
+      key && router.replace(key)
     }
     if (pathname !== '/login' && !state.user) {
       router.replace('/login')
@@ -70,6 +89,15 @@ const Layout = ({ children, noLayout }: Props) => {
                 width={600}
               />
               <p style={{ fontSize: '28px' }}>暂无权限</p>
+              <Button
+                onClick={() => router.back()}
+                style={{ width: '300px', marginTop: '40px' }}
+                size="large"
+                shape="round"
+                type="primary"
+              >
+                返回
+              </Button>
             </div>
           </>
         )
@@ -114,7 +142,10 @@ const Layout = ({ children, noLayout }: Props) => {
               items={userState.showMenu}
             />
           </Sider>
-          <Content style={{ padding: '24px' }}>{children}</Content>
+          <ALayout>
+            <Content style={{ padding: '24px 24px 0' }}>{children}</Content>
+            <MyFooter></MyFooter>
+          </ALayout>
         </ALayout>
       </ALayout>
     )

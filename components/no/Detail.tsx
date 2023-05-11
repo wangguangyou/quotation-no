@@ -5,6 +5,7 @@ import { Table, Descriptions, Tag, Spin } from 'antd'
 import { getQuotationDetail, getQuotationParam } from '@/api/quotation'
 import Status from './Status'
 import dataState from '@/store/data'
+import userState from '@/store/user'
 import { useSnapshot } from 'valtio'
 type DetailType = unwrapResponse<typeof getQuotationDetail>
 type QuotationParam = unwrapResponse<typeof getQuotationParam>
@@ -52,10 +53,20 @@ const columns: ColumnsType<DataType> = [
     dataIndex: 'price',
     ellipsis: true,
   },
+  {
+    title: '辅料产品单价',
+    ellipsis: true,
+    render: (_, record) => {
+      const { qty, price } = record
+      if (!qty || !price) return '-'
+      return qty * price
+    },
+  },
 ]
 
 const Detail = ({ data }: { data: Quotation }) => {
   const hotDataState = useSnapshot(dataState)
+  const hotUserState = useSnapshot(userState)
   const [values, setValues] = useState<DetailType>()
   const [raw, setRaw] = useState<QuotationParam>()
   const getUnit = (unitCode: string) => {
@@ -110,7 +121,7 @@ const Detail = ({ data }: { data: Quotation }) => {
                 {values.quotation.height}
               </Descriptions.Item>
               <Descriptions.Item label="不良率">
-                {getUnit('DefectiveRate')?.typeName}
+                {getUnit('DefectiveRate')?.value}
               </Descriptions.Item>
 
               <Descriptions.Item label="订单数量">
@@ -152,6 +163,7 @@ const Detail = ({ data }: { data: Quotation }) => {
               <Descriptions.Item label="运输方式">
                 {values.transport || getUnit('Freight')?.typeName}
               </Descriptions.Item>
+              <Descriptions.Item label="运费付款方式">todo</Descriptions.Item>
               <Descriptions.Item label="运费" span={2}>
                 {getUnit('Freight')?.value.toFixed(2)}
               </Descriptions.Item>
@@ -185,19 +197,27 @@ const Detail = ({ data }: { data: Quotation }) => {
                 整箱体积: {values.quotationPackage.volume}
                 <br />
               </Descriptions.Item>
-              <Descriptions.Item label="成本价格">
-                {data.costPrice.toFixed(2)}
-              </Descriptions.Item>
-              <Descriptions.Item label="税后价格" span={2}>
+              {!hotUserState.isClerk && (
+                <Descriptions.Item label="成本单价">
+                  {data.costPrice.toFixed(2)}
+                </Descriptions.Item>
+              )}
+
+              <Descriptions.Item label="税后单价" span={2}>
                 {data.taxPrice.toFixed(2)}
               </Descriptions.Item>
-              <Descriptions.Item label="利润">
-                {data.profit.toFixed(2)}
-              </Descriptions.Item>
-              <Descriptions.Item label="利润率" span={2}>
-                {data.profitPercentage || '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="最终价格">
+              {!hotUserState.isClerk && (
+                <>
+                  <Descriptions.Item label="利润">
+                    {data.profit.toFixed(2)}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="利润率" span={2}>
+                    {data.profitPercentage || '-'}
+                  </Descriptions.Item>
+                </>
+              )}
+
+              <Descriptions.Item label="总价">
                 {data.quotedPrice.toFixed(2)}
               </Descriptions.Item>
               <Descriptions.Item label="创建时间" span={2}>

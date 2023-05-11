@@ -99,6 +99,7 @@ export interface Fixed {
   value: number
   createTime: string
   updateTime: string
+  createUser?: string
 }
 export interface BadMap {
   id: number

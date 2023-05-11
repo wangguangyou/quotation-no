@@ -76,8 +76,10 @@ const MainForm = ({
       layer,
       taxRateParam,
       freightParam,
+      shippingPayment,
     } = values
     return {
+      shippingPayment,
       clerkComplete: alone,
       length,
       width,
@@ -141,7 +143,6 @@ const MainForm = ({
     ])
 
     const params = getParams(values, accyItemList)
-    console.log(accyItemList)
     const { status } = await (isEditMode
       ? editQuotation(data.id, params)
       : addQuotation(params))
@@ -156,6 +157,7 @@ const MainForm = ({
       }
 
       setKey(Date.now())
+      setTotal(undefined)
       form.resetFields()
     }
   }
@@ -568,35 +570,28 @@ const MainForm = ({
               <div className="text-#666 text-16 mb-12">包装要求</div>
 
               <div className="fi space-x-24">
-                <Form.Item label="列" name="row" rules={[{ required: true }]}>
-                  <InputNumber
-                    min={0}
-                    className="w-200"
-                    placeholder="请输入内容"
-                  />
-                </Form.Item>
-                <Form.Item label="排" name="col" rules={[{ required: true }]}>
-                  <InputNumber
-                    min={0}
-                    className="w-200"
-                    placeholder="请输入内容"
-                  />
-                </Form.Item>
-                <Form.Item label="层" name="layer" rules={[{ required: true }]}>
-                  <InputNumber
-                    min={0}
-                    className="w-200"
-                    placeholder="请输入内容"
+                <Form.Item
+                  label="摆放方式"
+                  name="摆放方式"
+                  rules={[{ required: true }]}
+                >
+                  <Select
+                    placeholder="请选择"
+                    className="w-200!"
+                    options={[
+                      { value: 0, label: '平铺' },
+                      { value: 1, label: '卷装' },
+                    ]}
                   />
                 </Form.Item>
               </div>
 
-              {/* <div className="text-#666 text-16 mb-12">纸箱尺寸</div>
+              <div className="text-#666 text-16 mb-12">纸箱尺寸</div>
               <div className="fi space-x-24">
                 <Form.Item
-                  labelCol={{ span: 7 }}
-                  label="长(CM)"
-                  name="l"
+                  labelCol={{ span: 8 }}
+                  label="列"
+                  name="row"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -606,9 +601,9 @@ const MainForm = ({
                   />
                 </Form.Item>
                 <Form.Item
-                  labelCol={{ span: 7 }}
-                  label="宽(CM)"
-                  name="w"
+                  labelCol={{ span: 8 }}
+                  label="排"
+                  name="col"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -618,9 +613,9 @@ const MainForm = ({
                   />
                 </Form.Item>
                 <Form.Item
-                  labelCol={{ span: 7 }}
-                  label="厚(MM)"
-                  name="h"
+                  labelCol={{ span: 8 }}
+                  label="层"
+                  name="layer"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -632,9 +627,8 @@ const MainForm = ({
               </div>
               <div className="fi space-x-24">
                 <Form.Item
-                  labelCol={{ span: 7 }}
                   label="整箱数量"
-                  name="l"
+                  name="pcs"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -644,9 +638,8 @@ const MainForm = ({
                   />
                 </Form.Item>
                 <Form.Item
-                  labelCol={{ span: 7 }}
                   label="整箱毛重"
-                  name="w"
+                  name="weight"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -656,9 +649,8 @@ const MainForm = ({
                   />
                 </Form.Item>
                 <Form.Item
-                  labelCol={{ span: 7 }}
                   label="整箱体积"
-                  name="h"
+                  name="volume"
                   rules={[{ required: true }]}
                 >
                   <InputNumber
@@ -667,7 +659,7 @@ const MainForm = ({
                     placeholder="请输入内容"
                   />
                 </Form.Item>
-              </div> */}
+              </div>
             </div>
           </div>
 
@@ -690,18 +682,21 @@ const MainForm = ({
                     options={options?.fre}
                   />
                 </Form.Item>
-                {/* <Form.Item
-                label="运输付款方式"
-                name="byclfs"
-                rules={[{ required: true }]}
-              >
-                <Select
-                  placeholder="请选择"
-                  className="w-200!"
-                  options={[{ value: 'lucy', label: 'Lucy' }]}
-                />
-              </Form.Item> 
-              <Form.Item
+                <Form.Item
+                  label="运输付款方式"
+                  name="shippingPayment"
+                  rules={[{ required: true }]}
+                >
+                  <Select
+                    placeholder="请选择"
+                    className="w-200!"
+                    options={[
+                      { value: 0, label: '到付' },
+                      { value: 1, label: '现付' },
+                    ]}
+                  />
+                </Form.Item>
+                {/*<Form.Item
                 label="运费"
                 name="byclfs"
                 rules={[{ required: true }]}
@@ -759,7 +754,12 @@ const MainForm = ({
 
               <Spin spinning={!total} size="small">
                 <span className="linear-text inline-block text-40 fw-600">
-                  {total?.toLocaleString()}
+                  {total && (
+                    <>
+                      <span className="text-32 v-text-bottom mb-2">￥</span>
+                      {total.toFixed(2)?.toLocaleString()}
+                    </>
+                  )}
                 </span>
               </Spin>
             </div>
