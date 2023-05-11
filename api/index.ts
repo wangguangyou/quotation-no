@@ -66,8 +66,8 @@ export const getSubComputeUnit = (
 ): JavaResponse<SubUnit[]> => GET(`/compute/unit/${path}`, data)
 
 //参数检测
-export const checkCompute = (data: any): JavaResponse<[Check, Check]> =>
-  POST(`/compute/check`, data)
+export const checkCompute = (data: any): JavaResponse<[Check, Check, Check]> =>
+  POST(`/compute/check`, data, { silence: true })
 
 export const combCompute = (data: any): JavaResponse<ComputedResult> =>
   POST(`/compute/comb`, data, { silence: true })

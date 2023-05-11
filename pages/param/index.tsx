@@ -8,6 +8,7 @@ import BadRange from '@/components/param/BadRange'
 import Fre from '@/components/param/Fre'
 import MT from '@/components/param/MT'
 import PR from '@/components/param/PR'
+import Weight from '@/components/param/Weight'
 import Tax from '@/components/param/Tax'
 import POL from '@/components/param/POL'
 import LSOL from '@/components/param/LSOL'
@@ -42,6 +43,10 @@ const items: TabsProps['items'] = [
   {
     label: `底料`,
     children: <PR />,
+  },
+  {
+    label: `重量`,
+    children: <Weight />,
   },
   {
     label: `税率`,

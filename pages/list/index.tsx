@@ -272,17 +272,18 @@ const Page: NextPage = () => {
                   return <Status record={record}></Status>
                 }}
               />
+
               <Table.Column
                 ellipsis={true}
                 title="面料"
-                dataIndex="materialParam"
-                key="materialParam"
+                dataIndex="fabric"
+                key="fabric"
               />
               <Table.Column
                 ellipsis={true}
                 title="底料"
-                dataIndex="primerParam"
-                key="primerParam"
+                dataIndex="primer"
+                key="primer"
               />
               <Table.Column
                 ellipsis={true}
@@ -293,14 +294,14 @@ const Page: NextPage = () => {
               <Table.Column
                 ellipsis={true}
                 title="边缘处理"
-                dataIndex="edgeProcessParam"
-                key="edgeProcessParam"
+                dataIndex="edgeProcess"
+                key="edgeProcess"
               />
               <Table.Column
                 ellipsis={true}
                 title="运输方式"
-                dataIndex="freightParam"
-                key="freightParam"
+                dataIndex="transport"
+                key="transport"
               />
 
               {!userState.isClerk && (

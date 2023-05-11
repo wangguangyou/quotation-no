@@ -78,18 +78,14 @@ class State {
             value: id,
             label: company,
           })),
-          mt: [{ value: 0, label: '无' }].concat(
-            mt.map(({ id, materialName }) => ({
-              value: id,
-              label: materialName,
-            }))
-          ),
-          pr: [{ value: 0, label: '无' }].concat(
-            pr.map(({ id, primerName }) => ({
-              value: id,
-              label: primerName,
-            }))
-          ),
+          mt: mt.map(({ id, materialName }) => ({
+            value: id,
+            label: materialName,
+          })),
+          pr: pr.map(({ id, primerName }) => ({
+            value: id,
+            label: primerName,
+          })),
           tax: tax.map(({ id, rateName }) => ({
             value: id,
             label: rateName,
@@ -98,18 +94,22 @@ class State {
             value: id,
             label: accyName,
           })),
-          PrintMethod: [{ value: '0', label: '无' }].concat(
-            PrintMethod.map(({ typeCode, typeName }) => ({
-              value: typeCode,
-              label: typeName,
-            }))
-          ),
-          EdgeProcess: [{ value: '0', label: '无' }].concat(
-            EdgeProcess.map(({ typeCode, typeName }) => ({
-              value: typeCode,
-              label: typeName,
-            }))
-          ),
+          PrintMethod: PrintMethod.map(({ typeCode, typeName }) => ({
+            value: typeCode,
+            label: typeName,
+          })),
+          EdgeProcess: EdgeProcess.map(({ typeCode, typeName }) => ({
+            value: typeCode,
+            label: typeName,
+          })),
+          shippingPayment: [
+            { value: 0, label: '到付' },
+            { value: 1, label: '现付' },
+          ],
+          placement: [
+            { value: 0, label: '平铺' },
+            { value: 1, label: '卷装' },
+          ],
         })
       }
     )

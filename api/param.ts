@@ -171,3 +171,16 @@ export const editLCP = (id: LCP['id'], data: Omit<LCP, 'id'>) =>
 
 export const delLCP = (id: LCP['id'], data?: any) =>
   DELETE(`/param/pm/lcp/delete/${id}`, data)
+
+//重量
+export const getWeightPage = (data?: any): JavaResponsePagination<LCP[]> =>
+  GET('/param/weight/page', data)
+
+export const addWeight = (data: Omit<LCP, 'id'>) =>
+  POST('/param/weight/add', data)
+
+export const editWeight = (id: LCP['id'], data: Omit<LCP, 'id'>) =>
+  PUT(`/param/weight/update/${id}`, data)
+
+export const delWeight = (id: LCP['id'], data?: any) =>
+  DELETE(`/param/weight/delete/${id}`, data)

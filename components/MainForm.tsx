@@ -98,15 +98,15 @@ const MainForm = ({
         col,
         layer,
       },
+      freightParam: {
+        mapId: freightParam,
+      },
       materialParam:
         materialParam == '0'
           ? null
           : {
               mapId: materialParam,
             },
-      freightParam: {
-        mapId: freightParam,
-      },
       primerParam:
         primerParam == '0'
           ? null
@@ -188,23 +188,87 @@ const MainForm = ({
       )
     }
     const watch = ['length', 'width', 'height', 'size']
+    const watch2 = ['row', 'col', 'layer', 'materialParam', 'primerParam']
 
+    const {
+      row,
+      col,
+      layer,
+      materialParam,
+      primerParam,
+      length,
+      width,
+      height,
+      size,
+      badRateParam,
+      edgeProcessParam,
+    } = allValues
+
+    if (
+      watch2.find((find) => {
+        return find in changedValues
+      })
+    ) {
+      if (
+        [row, col, layer, materialParam, primerParam].every(
+          (item) => item != null
+        )
+      ) {
+        const {
+          data: [_, __, StandardPKG],
+        } = await checkCompute({
+          packageParam: {
+            row,
+            col,
+            layer,
+          },
+          materialParam:
+            materialParam == '0'
+              ? null
+              : {
+                  mapId: materialParam,
+                },
+          primerParam:
+            primerParam == '0'
+              ? null
+              : {
+                  mapId: primerParam,
+                },
+        })
+        const { volume, pcs, weight } = StandardPKG.value as any
+        form.setFields([
+          {
+            name: 'weight',
+            errors: [],
+            value: weight || undefined,
+          },
+          {
+            name: 'pcs',
+            errors: [],
+            value: pcs,
+          },
+          {
+            name: 'volume',
+            errors: [],
+            value: volume,
+          },
+        ])
+      }
+    }
     if (
       watch.find((find) => {
         return find in changedValues
       })
     ) {
-      if ('size' in changedValues) {
-        if (checkData?.[0].hasError) return
-      }
-      const { length, width, height, size, badRateParam, edgeProcessParam } =
-        allValues
       if (length != null && width != null && height != null) {
+        if ('size' in changedValues) {
+          if (checkData?.[0].hasError) return
+        }
         const {
-          data: [StandardBAD, LuminousStripOverLockEP],
+          data: [StandardBAD, LuminousStripOverLockEP, StandardPKG],
         } = await checkCompute({ length, width, height, size })
 
-        setCheckData([StandardBAD, LuminousStripOverLockEP])
+        setCheckData([StandardBAD, LuminousStripOverLockEP, StandardPKG])
 
         if (StandardBAD.hasError) {
           setBadRateParamDisabled(false)
@@ -427,7 +491,9 @@ const MainForm = ({
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={options?.PrintMethod}
+                    options={[{ value: '0', label: '无' } as any].concat(
+                      options?.PrintMethod || []
+                    )}
                   />
                 </Form.Item>
                 <Form.Item
@@ -453,7 +519,9 @@ const MainForm = ({
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={options?.EdgeProcess}
+                    options={[{ value: '0', label: '无' } as any].concat(
+                      options?.EdgeProcess || []
+                    )}
                   />
                 </Form.Item>
                 <AnimatePresence>
@@ -527,7 +595,9 @@ const MainForm = ({
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={options?.mt}
+                    options={[{ value: 0, label: '无' } as any].concat(
+                      options?.mt || []
+                    )}
                   />
                 </Form.Item>
                 <Form.Item
@@ -538,7 +608,9 @@ const MainForm = ({
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={options?.pr}
+                    options={[{ value: 0, label: '无' } as any].concat(
+                      options?.pr || []
+                    )}
                   />
                 </Form.Item>
               </div>
@@ -572,16 +644,13 @@ const MainForm = ({
               <div className="fi space-x-24">
                 <Form.Item
                   label="摆放方式"
-                  name="摆放方式"
+                  name="placement"
                   rules={[{ required: true }]}
                 >
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={[
-                      { value: 0, label: '平铺' },
-                      { value: 1, label: '卷装' },
-                    ]}
+                    options={options?.fre}
                   />
                 </Form.Item>
               </div>
@@ -690,10 +759,7 @@ const MainForm = ({
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={[
-                      { value: 0, label: '到付' },
-                      { value: 1, label: '现付' },
-                    ]}
+                    options={options?.shippingPayment}
                   />
                 </Form.Item>
                 {/*<Form.Item

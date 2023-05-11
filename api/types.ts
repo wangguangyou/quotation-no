@@ -201,6 +201,11 @@ export interface Quotation {
   profitPercentage: string // 利润率
   additional: boolean
   reject: boolean // 是香退回
+  fabric: string
+  primer: string
+  transport: string
+  edgeProcess: string
+  printMethod: string
 }
 
 export interface QuotationParam {
@@ -208,6 +213,8 @@ export interface QuotationParam {
   width: number
   height: number
   size: number
+  shippingPayment: number
+  placement: number
   printMethod?: PrintMethod
   edgeProcessParam?: EdgeProcessParam
   materialParam?: MaterialParam

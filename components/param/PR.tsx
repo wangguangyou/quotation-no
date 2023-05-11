@@ -99,22 +99,22 @@ const Component = () => {
               dataIndex="primerName"
               key="primerName"
             />
-            <Table.Column
+            {/* <Table.Column
               title="片材克重"
               dataIndex="pieceWeight"
               key="pieceWeight"
-            />
+            /> */}
             <Table.Column
               title="片材单价（元/㎡）"
               dataIndex="piecePrice"
               key="piecePrice"
             />
 
-            <Table.Column
+            {/* <Table.Column
               title="卷材克重"
               dataIndex="coilWeight"
               key="coilWeight"
-            />
+            /> */}
             <Table.Column
               title="卷材单价（元/㎡）"
               dataIndex="coilPrice"
@@ -165,7 +165,7 @@ const Component = () => {
           >
             <Input className="w-full" autoComplete="off" size="large" />
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             label="片材克重"
             name="pieceWeight"
             rules={[{ required: true }]}
@@ -176,7 +176,7 @@ const Component = () => {
               autoComplete="off"
               size="large"
             />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item
             label="片材单价（元/㎡）"
             name="piecePrice"
@@ -190,7 +190,7 @@ const Component = () => {
             />
           </Form.Item>
 
-          <Form.Item
+          {/* <Form.Item
             label="卷材克重"
             name="coilWeight"
             rules={[{ required: true }]}
@@ -201,7 +201,7 @@ const Component = () => {
               autoComplete="off"
               size="large"
             />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item
             label="卷材单价（元/㎡）"
             name="coilPrice"

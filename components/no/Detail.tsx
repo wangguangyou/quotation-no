@@ -163,7 +163,12 @@ const Detail = ({ data }: { data: Quotation }) => {
               <Descriptions.Item label="运输方式">
                 {values.transport || getUnit('Freight')?.typeName}
               </Descriptions.Item>
-              <Descriptions.Item label="运费付款方式">todo</Descriptions.Item>
+              <Descriptions.Item label="运费付款方式">
+                {hotDataState.getOptionsLabel(
+                  'shippingPayment',
+                  raw?.shippingPayment
+                )}
+              </Descriptions.Item>
               <Descriptions.Item label="运费" span={2}>
                 {getUnit('Freight')?.value.toFixed(2)}
               </Descriptions.Item>
@@ -184,6 +189,9 @@ const Detail = ({ data }: { data: Quotation }) => {
               </Descriptions.Item>
 
               <Descriptions.Item label="包装要求" span={3}>
+                摆放方式:{' '}
+                {hotDataState.getOptionsLabel('placement', raw?.placement)}
+                <br />
                 列: {values.quotationPackage.row}
                 <br />
                 排: {values.quotationPackage.col}
