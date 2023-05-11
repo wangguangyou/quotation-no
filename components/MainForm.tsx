@@ -74,6 +74,9 @@ const MainForm = ({
       row,
       col,
       layer,
+      weight,
+      volume,
+      pcs,
       taxRateParam,
       freightParam,
       shippingPayment,
@@ -97,6 +100,9 @@ const MainForm = ({
         row,
         col,
         layer,
+        weight,
+        volume,
+        pcs,
       },
       freightParam: {
         mapId: freightParam,
@@ -187,8 +193,18 @@ const MainForm = ({
         changedValues.edgeProcessParam === 'LuminousStripOverLockEP'
       )
     }
-    const watch = ['length', 'width', 'height', 'size']
-    const watch2 = ['row', 'col', 'layer', 'materialParam', 'primerParam']
+    const watch = [
+      'length',
+      'width',
+      'height',
+      'size',
+
+      'row',
+      'col',
+      'layer',
+      'materialParam',
+      'primerParam',
+    ]
 
     const {
       row,
@@ -205,18 +221,18 @@ const MainForm = ({
     } = allValues
 
     if (
-      watch2.find((find) => {
+      watch.find((find) => {
         return find in changedValues
       })
     ) {
-      if (
-        [row, col, layer, materialParam, primerParam].every(
-          (item) => item != null
-        )
-      ) {
+      if (length != null && width != null && height != null) {
         const {
-          data: [_, __, StandardPKG],
+          data: [StandardBAD, LuminousStripOverLockEP, StandardPKG],
         } = await checkCompute({
+          length,
+          width,
+          height,
+          size,
           packageParam: {
             row,
             col,
@@ -235,77 +251,81 @@ const MainForm = ({
                   mapId: primerParam,
                 },
         })
-        const { volume, pcs, weight } = StandardPKG.value as any
-        form.setFields([
-          {
-            name: 'weight',
-            errors: [],
-            value: weight || undefined,
-          },
-          {
-            name: 'pcs',
-            errors: [],
-            value: pcs,
-          },
-          {
-            name: 'volume',
-            errors: [],
-            value: volume,
-          },
-        ])
-      }
-    }
-    if (
-      watch.find((find) => {
-        return find in changedValues
-      })
-    ) {
-      if (length != null && width != null && height != null) {
-        if ('size' in changedValues) {
-          if (checkData?.[0].hasError) return
-        }
-        const {
-          data: [StandardBAD, LuminousStripOverLockEP, StandardPKG],
-        } = await checkCompute({ length, width, height, size })
 
         setCheckData([StandardBAD, LuminousStripOverLockEP, StandardPKG])
-
-        if (StandardBAD.hasError) {
-          setBadRateParamDisabled(false)
+        if (StandardPKG?.value) {
+          const { volume, pcs, weight } = StandardPKG.value as any
           form.setFields([
             {
-              name: 'badRateParam',
-              errors: [StandardBAD.error],
-              value: undefined,
-            },
-          ])
-        } else {
-          setBadRateParamDisabled(true)
-          form.setFields([
-            {
-              name: 'badRateParam',
+              name: 'weight',
               errors: [],
-              value: StandardBAD.value,
+              value: weight || undefined,
+            },
+            {
+              name: 'pcs',
+              errors: [],
+              value: pcs,
+            },
+            {
+              name: 'volume',
+              errors: [],
+              value: volume,
             },
           ])
         }
 
-        if (LuminousStripOverLockEP.hasError) {
-          if (edgeProcessParam === 'LuminousStripOverLockEP') {
+        if (
+          ['lenght', 'width', 'height'].find((find) => {
+            return find in changedValues
+          })
+        ) {
+          if (LuminousStripOverLockEP.hasError) {
+            console.log(13)
+            if (edgeProcessParam === 'LuminousStripOverLockEP') {
+              form.setFields([
+                {
+                  name: 'edgeProcessParam',
+                  errors: [LuminousStripOverLockEP.error],
+                },
+              ])
+            }
+          } else {
             form.setFields([
               {
                 name: 'edgeProcessParam',
-                errors: [LuminousStripOverLockEP.error],
+                errors: [],
               },
             ])
           }
-        } else {
-          form.setFields([
-            {
-              name: 'edgeProcessParam',
-              errors: [],
-            },
-          ])
+        }
+
+        if (
+          ['lenght', 'width', 'height', 'size'].find((find) => {
+            return find in changedValues
+          })
+        ) {
+          if ('size' in changedValues) {
+            if (checkData?.[0].hasError) return
+          }
+          if (StandardBAD.hasError) {
+            setBadRateParamDisabled(false)
+            form.setFields([
+              {
+                name: 'badRateParam',
+                errors: [StandardBAD.error],
+                value: undefined,
+              },
+            ])
+          } else {
+            setBadRateParamDisabled(true)
+            form.setFields([
+              {
+                name: 'badRateParam',
+                errors: [],
+                value: StandardBAD.value,
+              },
+            ])
+          }
         }
       }
     }
@@ -325,12 +345,17 @@ const MainForm = ({
           width: raw.width,
           height: raw.height,
           printMethod: raw.printMethod?.code || '0',
+          placement: raw.placement,
+          shippingPayment: raw.shippingPayment,
           edgeProcessParam: raw.edgeProcessParam?.code || '0',
           materialParam: raw.materialParam?.mapId || 0,
           primerParam: raw.primerParam?.mapId || 0,
           col: raw.packageParam.col,
           row: raw.packageParam.row,
           layer: raw.packageParam.layer,
+          weight: raw.packageParam.weight,
+          volume: raw.packageParam.volume,
+          pcs: raw.packageParam.pcs,
           taxRateParam: raw.taxRateParam.mapId,
           badRateParam: raw.badRateParam.inputRate,
           freightParam: raw.freightParam.mapId,
@@ -650,7 +675,7 @@ const MainForm = ({
                   <Select
                     placeholder="请选择"
                     className="w-200!"
-                    options={options?.fre}
+                    options={options?.placement}
                   />
                 </Form.Item>
               </div>

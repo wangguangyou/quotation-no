@@ -254,6 +254,9 @@ interface PackageParam {
   row: number
   col: number
   layer: number
+  pcs: number
+  volume: number
+  weight: number
 }
 
 interface MaterialParam {
