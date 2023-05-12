@@ -8,11 +8,16 @@ import {
   getAccyAll,
 } from '@/api/param'
 
+type DOption = Option & { payload?: Record<string, any> }
 export type Store = {
   statusList: { label: string; value: number }[]
   getLabel: (value: number) => string | undefined
-  options?: Record<string, Option[]>
+  options?: Record<string, DOption[]>
   initOptions: () => Promise<Store['options']>
+  getOptionByValue: (
+    key: string,
+    value?: string | number
+  ) => DOption | undefined
   getOptionsLabel: (key: string, value?: string | number) => string | undefined
 }
 
@@ -53,7 +58,7 @@ class State {
   }
 
   async initOptions() {
-    if (this.options) return this.options
+    // if (this.options) return this.options
 
     return Promise.all([
       getFreAll(),
@@ -78,13 +83,20 @@ class State {
             value: id,
             label: company,
           })),
-          mt: mt.map(({ id, materialName }) => ({
+          mt: mt.map(({ id, materialName, price }) => ({
             value: id,
             label: materialName,
+            payload: {
+              price,
+            },
           })),
-          pr: pr.map(({ id, primerName }) => ({
+          pr: pr.map(({ id, primerName, piecePrice, coilPrice }) => ({
             value: id,
             label: primerName,
+            payload: {
+              piecePrice,
+              coilPrice,
+            },
           })),
           tax: tax.map(({ id, rateName }) => ({
             value: id,
@@ -114,13 +126,14 @@ class State {
       }
     )
   }
-  getOptionsLabel(key: string, value?: number | string) {
+  getOptionByValue(key: string, value?: number | string) {
     if (this.options) {
       const target = this.options[key]
-      return target?.find((find) => find.value == value)?.label
-    } else {
-      this.initOptions()
+      return target?.find((find) => find.value == value)
     }
+  }
+  getOptionsLabel(key: string, value?: number | string) {
+    return this.getOptionByValue(key, value)?.label
   }
 }
 const state = proxy<Store>(new State())

@@ -44,6 +44,7 @@ const MainForm = ({
   const [showNeedDriverChip, setShowNeedDriverChip] = useState(false)
   const [isSilkPrintPM, setIsSilkPrintPM] = useState(false)
   const [alone, setAlone] = useState(false)
+  const [allValues, setAllValues] = useState<Record<string, any>>()
   const [total, setTotal] = useState<number>()
   const [key, setKey] = useState(0)
   const [excelData, setExcelData] =
@@ -183,6 +184,7 @@ const MainForm = ({
     initTotal(form.getFieldsValue(), excelData)
   }
   const onValuesChange = async (changedValues: any, allValues: any) => {
+    setAllValues(allValues)
     initTotal(allValues, excelRef.current!.getRowsData())
 
     if ('printMethod' in changedValues) {
@@ -645,6 +647,7 @@ const MainForm = ({
                 <Excel
                   onExcelValuesChange={onExcelValuesChange}
                   data={excelData}
+                  parentValues={allValues}
                   key={key}
                   requireds={['name', 'print', 'material', 'size'].concat(
                     alone || (isEditMode && !state.isClerk) ? ['price'] : []

@@ -127,15 +127,15 @@ export interface MT {
   id: number
   materialName: string
   price: number
-  weight: number
+  // weight: number
 }
 export interface PR {
   id: number
   primerName: string
   piecePrice: number
   coilPrice: number
-  pieceWeight: number
-  coilWeight: number
+  // pieceWeight: number
+  // coilWeight: number
 }
 export interface Tax {
   id: number

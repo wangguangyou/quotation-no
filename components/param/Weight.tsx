@@ -105,8 +105,8 @@ const Component = () => {
           >
             <Table.Column title="面料" dataIndex="mtName" key="mtName" />
             <Table.Column title="底料" dataIndex="prName" key="prName" />
-            <Table.Column title="每平方克重" dataIndex="weight" key="weight" />
             <Table.Column title="厚(mm)" dataIndex="height" key="height" />
+            <Table.Column title="每平方克重" dataIndex="weight" key="weight" />
 
             <Table.Column
               title="操作"
@@ -161,11 +161,7 @@ const Component = () => {
             />
           </Form.Item>
 
-          <Form.Item
-            label="每平方克重"
-            name="weight"
-            rules={[{ required: true }]}
-          >
+          <Form.Item label="厚(mm)" name="height" rules={[{ required: true }]}>
             <InputNumber
               min={0}
               className="w-full"
@@ -173,7 +169,12 @@ const Component = () => {
               size="large"
             />
           </Form.Item>
-          <Form.Item label="厚(mm)" name="height" rules={[{ required: true }]}>
+
+          <Form.Item
+            label="每平方克重"
+            name="weight"
+            rules={[{ required: true }]}
+          >
             <InputNumber
               min={0}
               className="w-full"

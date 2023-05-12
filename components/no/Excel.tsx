@@ -1,12 +1,6 @@
 import { EditableProTable, ProFormField } from '@ant-design/pro-components'
 import { Form } from 'antd'
-import React, {
-  useState,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-  useEffect,
-} from 'react'
+import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react'
 import type {
   EditableFormInstance,
   ProColumns,
@@ -15,6 +9,7 @@ import type { AccyItem } from '@/api/types'
 type DataSourceType = Partial<AccyItem>
 
 type Props = {
+  parentValues?: Record<string, any>
   options: Option[]
   data?: AccyItem[]
   requireds?: string[]
@@ -27,7 +22,7 @@ type EditableCellRef = {
 }
 
 const Excel = forwardRef<EditableCellRef, Props>(
-  ({ options, requireds, data, onExcelValuesChange }, ref) => {
+  ({ options, requireds, data, onExcelValuesChange, parentValues }, ref) => {
     const [form] = Form.useForm()
 
     const editorFormRef = useRef<EditableFormInstance<DataSourceType>>()
@@ -158,8 +153,8 @@ const Excel = forwardRef<EditableCellRef, Props>(
         ellipsis: true,
         render: (_, record) => {
           const { qty, price } = record
-          if (!qty || !price) return '-'
-          return qty * price
+          if (!qty || !price || !parentValues?.size) return '-'
+          return (qty / parentValues.size) * price
         },
       },
       {

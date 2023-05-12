@@ -13,57 +13,6 @@ import type { ColumnsType } from 'antd/es/table'
 import type { AccyItem, Quotation } from '@/api/types'
 type DataType = Partial<AccyItem>
 
-const columns: ColumnsType<DataType> = [
-  {
-    title: '序号',
-    dataIndex: 'name',
-  },
-  {
-    title: '产品名称',
-    dataIndex: 'name',
-    ellipsis: true,
-  },
-  {
-    title: '数量',
-    dataIndex: 'qty',
-    ellipsis: true,
-  },
-  {
-    title: '材质',
-    dataIndex: 'material',
-    ellipsis: true,
-  },
-  {
-    title: '大小',
-    dataIndex: 'size',
-    ellipsis: true,
-  },
-  {
-    title: '印刷',
-    dataIndex: 'print',
-    ellipsis: true,
-  },
-  {
-    title: '其他要求',
-    dataIndex: 'other',
-    ellipsis: true,
-  },
-  {
-    title: '价格',
-    dataIndex: 'price',
-    ellipsis: true,
-  },
-  {
-    title: '辅料产品单价',
-    ellipsis: true,
-    render: (_, record) => {
-      const { qty, price } = record
-      if (!qty || !price) return '-'
-      return qty * price
-    },
-  },
-]
-
 const Detail = ({ data }: { data: Quotation }) => {
   const hotDataState = useSnapshot(dataState)
   const hotUserState = useSnapshot(userState)
@@ -93,6 +42,57 @@ const Detail = ({ data }: { data: Quotation }) => {
     hotDataState.initOptions()
   }, [])
 
+  const columns: ColumnsType<DataType> = [
+    {
+      title: '序号',
+      dataIndex: 'name',
+    },
+    {
+      title: '产品名称',
+      dataIndex: 'name',
+      ellipsis: true,
+    },
+    {
+      title: '数量',
+      dataIndex: 'qty',
+      ellipsis: true,
+    },
+    {
+      title: '材质',
+      dataIndex: 'material',
+      ellipsis: true,
+    },
+    {
+      title: '大小',
+      dataIndex: 'size',
+      ellipsis: true,
+    },
+    {
+      title: '印刷',
+      dataIndex: 'print',
+      ellipsis: true,
+    },
+    {
+      title: '其他要求',
+      dataIndex: 'other',
+      ellipsis: true,
+    },
+    {
+      title: '价格',
+      dataIndex: 'price',
+      ellipsis: true,
+    },
+    {
+      title: '辅料产品单价',
+      ellipsis: true,
+      render: (_, record) => {
+        const { qty, price } = record
+        if (!qty || !price || !raw?.size) return '-'
+        return (qty / raw.size) * price
+      },
+    },
+  ]
+
   return (
     <Spin spinning={!values}>
       <div className="pb-16">
@@ -113,24 +113,34 @@ const Detail = ({ data }: { data: Quotation }) => {
               <Descriptions.Item label="客户价格">
                 {values.quotation.customerPrice}
               </Descriptions.Item>
-              <Descriptions.Item label="状态">
-                <Status record={values.quotation}></Status>
-              </Descriptions.Item>
+
               <Descriptions.Item label="产品尺寸">
                 {values.quotation.length}*{values.quotation.width}*
                 {values.quotation.height}
               </Descriptions.Item>
-              <Descriptions.Item label="不良率">
-                {getUnit('DefectiveRate')?.value}
-              </Descriptions.Item>
-
               <Descriptions.Item label="订单数量">
                 {values.quotation.size}
               </Descriptions.Item>
+              <Descriptions.Item label="不良率">
+                {getUnit('DefectiveRate')?.value}%
+              </Descriptions.Item>
+
+              <Descriptions.Item label="状态" span={3}>
+                <Status record={values.quotation}></Status>
+              </Descriptions.Item>
+
               <Descriptions.Item label="印刷方式">
                 {getUnit('PrintMethod')?.typeName}
               </Descriptions.Item>
-              <Descriptions.Item label="边缘处理方式">
+              {!userState.isClerk && (
+                <Descriptions.Item label="印刷单价" span={2}>
+                  {getUnit('PrintMethod')?.value}
+                </Descriptions.Item>
+              )}
+              <Descriptions.Item
+                label="边缘处理方式"
+                span={userState.isClerk ? 2 : 1}
+              >
                 {getUnit('EdgeProcess')?.typeName}
                 {getUnit('EdgeProcess')?.typeCode ===
                   'LuminousStripOverLockEP' &&
@@ -144,6 +154,11 @@ const Detail = ({ data }: { data: Quotation }) => {
                     </Tag>
                   ))}
               </Descriptions.Item>
+              {!userState.isClerk && (
+                <Descriptions.Item label="边缘单价" span={2}>
+                  {getUnit('EdgeProcess')?.value}
+                </Descriptions.Item>
+              )}
               {raw?.printMethod?.code === 'SilkPrintPM' && (
                 <>
                   <Descriptions.Item label="网板次数">
@@ -157,9 +172,40 @@ const Detail = ({ data }: { data: Quotation }) => {
               <Descriptions.Item label="面料">
                 {hotDataState.getOptionsLabel('mt', raw?.materialParam?.mapId)}
               </Descriptions.Item>
-              <Descriptions.Item label="底料" span={2}>
+              {!userState.isClerk && (
+                <Descriptions.Item label="面料-单价" span={2}>
+                  {
+                    hotDataState.getOptionByValue(
+                      'mt',
+                      raw?.materialParam?.mapId
+                    )?.payload?.price
+                  }
+                </Descriptions.Item>
+              )}
+              <Descriptions.Item label="底料" span={userState.isClerk ? 2 : 1}>
                 {hotDataState.getOptionsLabel('pr', raw?.primerParam?.mapId)}
               </Descriptions.Item>
+              {!userState.isClerk && (
+                <>
+                  <Descriptions.Item label="底料-片材单价">
+                    {
+                      hotDataState.getOptionByValue(
+                        'pr',
+                        raw?.primerParam?.mapId
+                      )?.payload?.piecePrice
+                    }
+                  </Descriptions.Item>
+                  <Descriptions.Item label="底料-卷材单价">
+                    {
+                      hotDataState.getOptionByValue(
+                        'pr',
+                        raw?.primerParam?.mapId
+                      )?.payload?.coilPrice
+                    }
+                  </Descriptions.Item>
+                </>
+              )}
+
               <Descriptions.Item label="运输方式">
                 {values.transport || getUnit('Freight')?.typeName}
               </Descriptions.Item>
@@ -170,13 +216,13 @@ const Detail = ({ data }: { data: Quotation }) => {
                 )}
               </Descriptions.Item>
               <Descriptions.Item label="运费" span={2}>
-                {getUnit('Freight')?.value.toFixed(2)}
+                ¥{getUnit('Freight')?.value.toFixed(2)}
               </Descriptions.Item>
               <Descriptions.Item label="发票类型">
                 {values.tax || getUnit('TaxRate')?.typeName}
               </Descriptions.Item>
               <Descriptions.Item label="税率" span={2}>
-                {getUnit('TaxRate')?.value}
+                {getUnit('TaxRate')?.value}%
               </Descriptions.Item>
               <Descriptions.Item label="业务员">
                 {data.clerk || '-'}
@@ -207,17 +253,17 @@ const Detail = ({ data }: { data: Quotation }) => {
               </Descriptions.Item>
               {!hotUserState.isClerk && (
                 <Descriptions.Item label="成本单价">
-                  {data.costPrice.toFixed(2)}
+                  ¥{data.costPrice.toFixed(2)}
                 </Descriptions.Item>
               )}
 
               <Descriptions.Item label="税后单价" span={2}>
-                {data.taxPrice.toFixed(2)}
+                ¥{data.taxPrice.toFixed(2)}
               </Descriptions.Item>
               {!hotUserState.isClerk && (
                 <>
                   <Descriptions.Item label="利润">
-                    {data.profit.toFixed(2)}
+                    ¥{data.profit.toFixed(2)}
                   </Descriptions.Item>
                   <Descriptions.Item label="利润率" span={2}>
                     {data.profitPercentage || '-'}
@@ -226,7 +272,7 @@ const Detail = ({ data }: { data: Quotation }) => {
               )}
 
               <Descriptions.Item label="总价">
-                {data.quotedPrice.toFixed(2)}
+                ¥{data.quotedPrice.toFixed(2)}
               </Descriptions.Item>
               <Descriptions.Item label="创建时间" span={2}>
                 {dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss')}
