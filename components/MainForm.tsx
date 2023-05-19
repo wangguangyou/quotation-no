@@ -225,21 +225,21 @@ const MainForm = ({
       boxHeight,
     } = allValues
 
-    if (true || !form.isFieldsTouched(['row1'])) {
+    if (!form.isFieldsTouched(['cartonLength'])) {
       const v =
         allValues.placement === 1
           ? boxLength * row + badRateParam
           : length * row + badRateParam
       v && form.setFieldValue('cartonLength', v)
     }
-    if (true || !form.isFieldsTouched(['col1'])) {
+    if (!form.isFieldsTouched(['cartonWidth'])) {
       const v =
         allValues.placement === 1
           ? boxWidth * col + badRateParam
           : width * col + badRateParam
       v && form.setFieldValue('cartonWidth', v)
     }
-    if (true || !form.isFieldsTouched(['layer1'])) {
+    if (!form.isFieldsTouched(['cartonHeight'])) {
       const v =
         allValues.placement === 1
           ? boxHeight * layer + badRateParam
@@ -447,15 +447,14 @@ const MainForm = ({
         form={form}
       >
         <div className="pb-110 space-y-32">
-          <div>
-            <div className="divider mb-32">
-              <div className="text-#666 inline-block text-20 fw-600 mb-12">
-                报价单完成形式
-              </div>
-            </div>
-
-            {!isEditMode && (
-              <AuthWrap auth="alone-create">
+          {!isEditMode && (
+            <AuthWrap auth="alone-create">
+              <div>
+                <div className="divider mb-32">
+                  <div className="text-#666 inline-block text-20 fw-600 mb-12">
+                    报价单完成形式
+                  </div>
+                </div>
                 <Radio.Group
                   options={[
                     { label: '个人', value: true },
@@ -464,9 +463,10 @@ const MainForm = ({
                   onChange={({ target: { value } }) => setAlone(value)}
                   value={alone}
                 />
-              </AuthWrap>
-            )}
-          </div>
+              </div>
+            </AuthWrap>
+          )}
+
           <div>
             <div className="divider mb-32">
               <div className="text-#666 inline-block text-20 fw-600 mb-12">

@@ -329,8 +329,11 @@ const Page: NextPage = () => {
               <Table.Column title="利润" dataIndex="profit" key="profit" />
               <Table.Column
                 title="利润率"
-                dataIndex="profitPercentage"
-                key="profitPercentage"
+                dataIndex="profitMargin"
+                key="profitMargin"
+                render={(profitMargin) =>
+                  `${(profitMargin * 100 || 0).toFixed(0)}%`
+                }
               />
 
               <Table.Column

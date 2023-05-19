@@ -281,7 +281,9 @@ const Detail = ({ data }: { data: Quotation }) => {
                 ¥{data.profit.toFixed(2)}
               </Descriptions.Item>
               <Descriptions.Item label="利润率" span={2}>
-                {data.profitPercentage || '-'}
+                {data.profitMargin
+                  ? `${(data.profitMargin * 100).toFixed(0)}%`
+                  : '-'}
               </Descriptions.Item>
 
               <Descriptions.Item label="总价">
