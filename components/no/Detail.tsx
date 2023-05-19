@@ -216,7 +216,7 @@ const Detail = ({ data }: { data: Quotation }) => {
                 )}
               </Descriptions.Item>
               <Descriptions.Item label="运费" span={2}>
-                ¥{getUnit('Freight')?.value.toFixed(2)}
+                ¥{raw?.freight?.toFixed(2)}
               </Descriptions.Item>
               <Descriptions.Item label="发票类型">
                 {values.tax || getUnit('TaxRate')?.typeName}
@@ -244,6 +244,22 @@ const Detail = ({ data }: { data: Quotation }) => {
                 <br />
                 层: {values.quotationPackage.layer}
                 <br />
+                {raw?.placement === 1 && (
+                  <>
+                    盒子长: {values.quotationPackage.boxLength}
+                    <br />
+                    盒子宽: {values.quotationPackage.boxWidth}
+                    <br />
+                    盒子高: {values.quotationPackage.boxHeight}
+                    <br />
+                  </>
+                )}
+                箱子长: {values.quotationPackage.length}
+                <br />
+                箱子宽: {values.quotationPackage.width}
+                <br />
+                箱子高: {values.quotationPackage.height}
+                <br />
                 整箱数量: {values.quotationPackage.pcs}
                 <br />
                 整箱毛重: {values.quotationPackage.weight}
@@ -251,25 +267,22 @@ const Detail = ({ data }: { data: Quotation }) => {
                 整箱体积: {values.quotationPackage.volume}
                 <br />
               </Descriptions.Item>
-              {!hotUserState.isClerk && (
-                <Descriptions.Item label="成本单价">
-                  ¥{data.costPrice.toFixed(2)}
-                </Descriptions.Item>
-              )}
+              <Descriptions.Item label="成本单价">
+                ¥{data.costPrice.toFixed(2)}
+              </Descriptions.Item>
 
-              <Descriptions.Item label="税后单价" span={2}>
+              <Descriptions.Item label="未税单价">
+                ¥{(data.costPrice + data.profit).toFixed(2)}
+              </Descriptions.Item>
+              <Descriptions.Item label="税后单价">
                 ¥{data.taxPrice.toFixed(2)}
               </Descriptions.Item>
-              {!hotUserState.isClerk && (
-                <>
-                  <Descriptions.Item label="利润">
-                    ¥{data.profit.toFixed(2)}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="利润率" span={2}>
-                    {data.profitPercentage || '-'}
-                  </Descriptions.Item>
-                </>
-              )}
+              <Descriptions.Item label="利润">
+                ¥{data.profit.toFixed(2)}
+              </Descriptions.Item>
+              <Descriptions.Item label="利润率" span={2}>
+                {data.profitPercentage || '-'}
+              </Descriptions.Item>
 
               <Descriptions.Item label="总价">
                 ¥{data.quotedPrice.toFixed(2)}

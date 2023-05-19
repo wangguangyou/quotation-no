@@ -1,4 +1,4 @@
-import { EditableProTable, ProFormField } from '@ant-design/pro-components'
+import { EditableProTable } from '@ant-design/pro-components'
 import { Form } from 'antd'
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react'
 import type {
@@ -19,6 +19,7 @@ type EditableCellRef = {
   validator: () => Promise<DataSourceType[]>
   resetFields: () => Promise<void>
   getRowsData: () => any
+  setRowsData: (data: DataSourceType[]) => void
 }
 
 const Excel = forwardRef<EditableCellRef, Props>(
@@ -35,6 +36,9 @@ const Excel = forwardRef<EditableCellRef, Props>(
       },
       async resetFields() {
         form.resetFields()
+      },
+      setRowsData(data) {
+        setDataSource(data)
       },
       getRowsData() {
         return dataSource

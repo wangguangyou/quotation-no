@@ -18,6 +18,12 @@ interface QuotationPackage {
   weight: number
   pcs: number
   createTime: string
+  boxLength?: number
+  boxWidth?: number
+  boxHeight?: number
+  length?: number
+  width?: number
+  height?: number
 }
 
 interface OpRecord {

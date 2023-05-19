@@ -5,7 +5,7 @@ import {
   InputNumber,
   Select,
   Checkbox,
-  Alert,
+  Radio,
   message,
   Spin,
 } from 'antd'
@@ -43,7 +43,7 @@ const MainForm = ({
   const [badRateParamDisabled, setBadRateParamDisabled] = useState(true)
   const [showNeedDriverChip, setShowNeedDriverChip] = useState(false)
   const [isSilkPrintPM, setIsSilkPrintPM] = useState(false)
-  const [alone, setAlone] = useState(false)
+  const [alone, setAlone] = useState(!isEditMode)
   const [allValues, setAllValues] = useState<Record<string, any>>()
   const [total, setTotal] = useState<number>()
   const [key, setKey] = useState(0)
@@ -81,8 +81,18 @@ const MainForm = ({
       taxRateParam,
       freightParam,
       shippingPayment,
+      placement,
+      boxLength,
+      boxWidth,
+      boxHeight,
+      cartonLength,
+      cartonWidth,
+      cartonHeight,
+      freight,
     } = values
     return {
+      placement,
+      freight,
       shippingPayment,
       clerkComplete: alone,
       length,
@@ -104,6 +114,13 @@ const MainForm = ({
         weight,
         volume,
         pcs,
+
+        boxLength,
+        boxWidth,
+        boxHeight,
+        length: cartonLength,
+        width: cartonWidth,
+        height: cartonHeight,
       },
       freightParam: {
         mapId: freightParam,
@@ -143,6 +160,9 @@ const MainForm = ({
       },
     }
   }
+  const onClearAccy = () => {
+    excelRef.current!.setRowsData([])
+  }
   const onFinish = async () => {
     const [values, accyItemList] = await Promise.all([
       form.validateFields(),
@@ -169,6 +189,9 @@ const MainForm = ({
     }
   }
   const initTotal = (values: any, excelData?: any) => {
+    if (!alone) {
+      return
+    }
     const { size, length, width, height } = values
     size &&
       length &&
@@ -183,9 +206,50 @@ const MainForm = ({
   const onExcelValuesChange = async (excelData: any) => {
     initTotal(form.getFieldsValue(), excelData)
   }
+
+  const setBoxDefault = (allValues: any) => {
+    const {
+      row,
+      col,
+      layer,
+      materialParam,
+      primerParam,
+      length,
+      width,
+      height,
+      size,
+      badRateParam,
+      edgeProcessParam,
+      boxLength,
+      boxWidth,
+      boxHeight,
+    } = allValues
+
+    if (true || !form.isFieldsTouched(['row1'])) {
+      const v =
+        allValues.placement === 1
+          ? boxLength * row + badRateParam
+          : length * row + badRateParam
+      v && form.setFieldValue('cartonLength', v)
+    }
+    if (true || !form.isFieldsTouched(['col1'])) {
+      const v =
+        allValues.placement === 1
+          ? boxWidth * col + badRateParam
+          : width * col + badRateParam
+      v && form.setFieldValue('cartonWidth', v)
+    }
+    if (true || !form.isFieldsTouched(['layer1'])) {
+      const v =
+        allValues.placement === 1
+          ? boxHeight * layer + badRateParam
+          : height * layer + badRateParam
+      v && form.setFieldValue('cartonHeight', v)
+    }
+  }
   const onValuesChange = async (changedValues: any, allValues: any) => {
     setAllValues(allValues)
-    initTotal(allValues, excelRef.current!.getRowsData())
+    initTotal(allValues, excelRef.current?.getRowsData())
 
     if ('printMethod' in changedValues) {
       setIsSilkPrintPM(changedValues.printMethod === 'SilkPrintPM')
@@ -207,7 +271,7 @@ const MainForm = ({
       'materialParam',
       'primerParam',
     ]
-
+    setBoxDefault(allValues)
     const {
       row,
       col,
@@ -361,6 +425,13 @@ const MainForm = ({
           taxRateParam: raw.taxRateParam.mapId,
           badRateParam: raw.badRateParam.inputRate,
           freightParam: raw.freightParam.mapId,
+          freight: raw.freight,
+          boxLength: raw.packageParam.boxLength,
+          boxWidth: raw.packageParam.boxWidth,
+          boxHeight: raw.packageParam.boxHeight,
+          cartonLengthLength: raw.packageParam.length,
+          cartonLengthWidth: raw.packageParam.width,
+          cartonLengthHeight: raw.packageParam.height,
         })
       }
     })()
@@ -369,30 +440,33 @@ const MainForm = ({
   return (
     <div className="relative">
       {contextHolder}
-      {!isEditMode && (
-        <AuthWrap auth="alone-create">
-          <Alert
-            className="w-400 mb-24"
-            showIcon
-            message="选择是否独自完成全流程"
-            type={alone ? 'success' : 'info'}
-            action={
-              <Checkbox
-                checked={alone}
-                onChange={({ target: { checked } }) => setAlone(checked)}
-              >
-                确定
-              </Checkbox>
-            }
-          />
-        </AuthWrap>
-      )}
+
       <Form
         scrollToFirstError={true}
         onValuesChange={onValuesChange}
         form={form}
       >
-        <div className="pb-130 space-y-32">
+        <div className="pb-110 space-y-32">
+          <div>
+            <div className="divider mb-32">
+              <div className="text-#666 inline-block text-20 fw-600 mb-12">
+                报价单完成形式
+              </div>
+            </div>
+
+            {!isEditMode && (
+              <AuthWrap auth="alone-create">
+                <Radio.Group
+                  options={[
+                    { label: '个人', value: true },
+                    { label: '团体', value: false },
+                  ]}
+                  onChange={({ target: { value } }) => setAlone(value)}
+                  value={alone}
+                />
+              </AuthWrap>
+            )}
+          </div>
           <div>
             <div className="divider mb-32">
               <div className="text-#666 inline-block text-20 fw-600 mb-12">
@@ -437,7 +511,7 @@ const MainForm = ({
             <div className="pl-24">
               <div className="text-#666 text-16 mb-12">产品尺寸</div>
 
-              <div className="fi space-x-24">
+              <div className="fi flex-wrap space-x-24">
                 <Form.Item
                   labelCol={{ span: 8 }}
                   label="长"
@@ -497,7 +571,7 @@ const MainForm = ({
             <div className="pl-24 ">
               <div className="text-#666 text-16 mb-12">产品数量</div>
 
-              <div className="fi space-x-24">
+              <div className="fi flex-wrap space-x-24">
                 <Form.Item
                   label="订单数量"
                   name="size"
@@ -642,14 +716,23 @@ const MainForm = ({
                 </Form.Item>
               </div>
 
-              <div className="text-#666 text-16 mb-12">辅料明细</div>
+              <div className="text-#666 text-16 mb-12">
+                辅料明细
+                <Button
+                  onClick={onClearAccy}
+                  type="primary"
+                  className="float-right"
+                >
+                  清空
+                </Button>
+              </div>
               {options?.accy && (!isEditMode || excelData) && (
                 <Excel
                   onExcelValuesChange={onExcelValuesChange}
                   data={excelData}
                   parentValues={allValues}
                   key={key}
-                  requireds={['name', 'print', 'material', 'size'].concat(
+                  requireds={['name'].concat(
                     alone || (isEditMode && !state.isClerk) ? ['price'] : []
                   )}
                   ref={excelRef}
@@ -673,7 +756,7 @@ const MainForm = ({
                 <Form.Item
                   label="摆放方式"
                   name="placement"
-                  rules={[{ required: true }]}
+                  rules={[{ required: false }]}
                 >
                   <Select
                     placeholder="请选择"
@@ -684,12 +767,12 @@ const MainForm = ({
               </div>
 
               <div className="text-#666 text-16 mb-12">纸箱尺寸</div>
-              <div className="fi space-x-24">
+              <div className="fi flex-wrap space-x-24">
                 <Form.Item
                   labelCol={{ span: 8 }}
                   label="列"
                   name="row"
-                  rules={[{ required: true }]}
+                  rules={[{ required: false }]}
                 >
                   <InputNumber
                     min={0}
@@ -701,7 +784,7 @@ const MainForm = ({
                   labelCol={{ span: 8 }}
                   label="排"
                   name="col"
-                  rules={[{ required: true }]}
+                  rules={[{ required: false }]}
                 >
                   <InputNumber
                     min={0}
@@ -713,7 +796,7 @@ const MainForm = ({
                   labelCol={{ span: 8 }}
                   label="层"
                   name="layer"
-                  rules={[{ required: true }]}
+                  rules={[{ required: false }]}
                 >
                   <InputNumber
                     min={0}
@@ -722,14 +805,100 @@ const MainForm = ({
                   />
                 </Form.Item>
               </div>
-              <div className="fi space-x-24">
+
+              {allValues?.placement === 1 && (
+                <div className="fi flex-wrap space-x-24">
+                  <Form.Item
+                    labelCol={{ span: 7 }}
+                    label="盒子长"
+                    name="boxLength"
+                    rules={[{ required: false }]}
+                  >
+                    <InputNumber
+                      min={0}
+                      addonAfter="cm"
+                      className="w-200"
+                      placeholder="请输入内容"
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    labelCol={{ span: 7 }}
+                    label="盒子宽"
+                    name="boxWidth"
+                    rules={[{ required: false }]}
+                  >
+                    <InputNumber
+                      min={0}
+                      addonAfter="cm"
+                      className="w-200"
+                      placeholder="请输入内容"
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    labelCol={{ span: 7 }}
+                    label="盒子高"
+                    name="boxHeight"
+                    rules={[{ required: false }]}
+                  >
+                    <InputNumber
+                      min={0}
+                      addonAfter="cm"
+                      className="w-200"
+                      placeholder="请输入内容"
+                    />
+                  </Form.Item>
+                </div>
+              )}
+              <div className="fi flex-wrap space-x-24">
                 <Form.Item
-                  label="整箱数量"
-                  name="pcs"
-                  rules={[{ required: true }]}
+                  labelCol={{ span: 7 }}
+                  label="纸箱长"
+                  name="cartonLength"
+                  rules={[{ required: false }]}
                 >
                   <InputNumber
                     min={0}
+                    addonAfter="cm"
+                    className="w-200"
+                    placeholder="请输入内容"
+                  />
+                </Form.Item>
+                <Form.Item
+                  labelCol={{ span: 7 }}
+                  label="纸箱宽"
+                  name="cartonWidth"
+                  rules={[{ required: false }]}
+                >
+                  <InputNumber
+                    min={0}
+                    addonAfter="cm"
+                    className="w-200"
+                    placeholder="请输入内容"
+                  />
+                </Form.Item>
+                <Form.Item
+                  labelCol={{ span: 7 }}
+                  label="纸箱高"
+                  name="cartonHeight"
+                  rules={[{ required: false }]}
+                >
+                  <InputNumber
+                    min={0}
+                    addonAfter="cm"
+                    className="w-200"
+                    placeholder="请输入内容"
+                  />
+                </Form.Item>
+              </div>
+              <div className="fi flex-wrap space-x-24">
+                <Form.Item
+                  label="整箱数量"
+                  name="pcs"
+                  rules={[{ required: false }]}
+                >
+                  <InputNumber
+                    min={0}
+                    addonAfter="PSC"
                     className="w-200"
                     placeholder="请输入内容"
                   />
@@ -737,10 +906,11 @@ const MainForm = ({
                 <Form.Item
                   label="整箱毛重"
                   name="weight"
-                  rules={[{ required: true }]}
+                  rules={[{ required: false }]}
                 >
                   <InputNumber
                     min={0}
+                    addonAfter="KG"
                     className="w-200"
                     placeholder="请输入内容"
                   />
@@ -748,9 +918,10 @@ const MainForm = ({
                 <Form.Item
                   label="整箱体积"
                   name="volume"
-                  rules={[{ required: true }]}
+                  rules={[{ required: false }]}
                 >
                   <InputNumber
+                    addonAfter="CBM(m³)"
                     min={0}
                     className="w-200"
                     placeholder="请输入内容"
@@ -767,7 +938,7 @@ const MainForm = ({
               </div>
             </div>
             <div className="pl-24">
-              <div className="fi space-x-24">
+              <div className="fi flex-wrap space-x-24">
                 <Form.Item
                   label="运输方式"
                   name="freightParam"
@@ -777,6 +948,17 @@ const MainForm = ({
                     placeholder="请选择"
                     className="w-200!"
                     options={options?.fre}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label="运费"
+                  name="freight"
+                  rules={[{ required: true }]}
+                >
+                  <InputNumber
+                    min={0}
+                    className="w-200"
+                    placeholder="请输入内容"
                   />
                 </Form.Item>
                 <Form.Item
@@ -790,17 +972,6 @@ const MainForm = ({
                     options={options?.shippingPayment}
                   />
                 </Form.Item>
-                {/*<Form.Item
-                label="运费"
-                name="byclfs"
-                rules={[{ required: true }]}
-              >
-                <InputNumber
-                  min={0}
-                  className="w-200"
-                  placeholder="请输入内容"
-                />
-              </Form.Item>*/}
               </div>
             </div>
           </div>
@@ -837,26 +1008,28 @@ const MainForm = ({
         </div>
 
         <footer
-          className="h-130 absolute bottom-0 left-0 w-full flex items-center 
+          className="h-110 absolute bottom-0 left-0 w-full flex items-center 
      "
         >
           <div>
-            <div className="flex items-center pl-24">
-              <span className="text-18 text-#888 mr-16 align-text-bottom">
-                合计
-              </span>
-
-              <Spin spinning={!total} size="small">
-                <span className="linear-text inline-block text-40 fw-600">
-                  {total && (
-                    <>
-                      <span className="text-32 v-text-bottom mb-2">￥</span>
-                      {total.toFixed(2)?.toLocaleString()}
-                    </>
-                  )}
+            {alone && (
+              <div className="flex items-center pl-24">
+                <span className="text-18 text-#888 mr-16 align-text-bottom">
+                  合计
                 </span>
-              </Spin>
-            </div>
+
+                <Spin spinning={!total} size="small">
+                  <span className="linear-text inline-block text-40 fw-600">
+                    {total && (
+                      <>
+                        <span className="text-32 v-text-bottom mb-2">￥</span>
+                        {total.toFixed(2)?.toLocaleString()}
+                      </>
+                    )}
+                  </span>
+                </Spin>
+              </div>
+            )}
 
             <div className="mt-16 min-w-200">
               <Button

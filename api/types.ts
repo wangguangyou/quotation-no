@@ -214,7 +214,7 @@ export interface QuotationParam {
   height: number
   size: number
   shippingPayment: number
-  placement: number
+  placement?: number
   printMethod?: PrintMethod
   edgeProcessParam?: EdgeProcessParam
   materialParam?: MaterialParam
@@ -225,6 +225,7 @@ export interface QuotationParam {
   badRateParam: BadRateParam
   freightParam: MaterialParam
   customerParam: CustomerParam
+  freight: number
 }
 interface CustomerParam {
   info: string
@@ -251,12 +252,18 @@ export interface AccyItem {
   perPrice: number
 }
 interface PackageParam {
-  row: number
-  col: number
-  layer: number
-  pcs: number
-  volume: number
-  weight: number
+  row?: number
+  col?: number
+  layer?: number
+  pcs?: number
+  volume?: number
+  weight?: number
+  boxLength?: number
+  boxWidth?: number
+  boxHeight?: number
+  length?: number
+  width?: number
+  height?: number
 }
 
 interface MaterialParam {

@@ -27,7 +27,7 @@ export const MyFooter = ({ style }: { style?: React.CSSProperties }) => {
       <Space>
         <span>技术支持：浙江晨阳软件</span>
         <span>联系电话：13454713815</span>
-        <span>当前版本：V1.0.1</span>
+        <span>当前版本：V2.0.1</span>
       </Space>
     </Footer>
   )

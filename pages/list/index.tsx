@@ -304,14 +304,20 @@ const Page: NextPage = () => {
                 key="transport"
               />
 
-              {!userState.isClerk && (
-                <Table.Column
-                  title="成本单价"
-                  dataIndex="costPrice"
-                  key="costPrice"
-                  render={(costPrice) => costPrice.toFixed(2)}
-                />
-              )}
+              <Table.Column
+                title="成本单价"
+                dataIndex="costPrice"
+                key="costPrice"
+                render={(costPrice) => costPrice.toFixed(2)}
+              />
+              <Table.Column
+                title="未税单价"
+                dataIndex="costPrice"
+                key="costPrice"
+                render={(costPrice, record: Quotation) =>
+                  (costPrice + record.profit).toFixed(2)
+                }
+              />
 
               <Table.Column
                 title="税后单价"
@@ -319,16 +325,13 @@ const Page: NextPage = () => {
                 key="taxPrice"
                 render={(taxPrice) => taxPrice.toFixed(2)}
               />
-              {!userState.isClerk && (
-                <>
-                  <Table.Column title="利润" dataIndex="profit" key="profit" />
-                  <Table.Column
-                    title="利润率"
-                    dataIndex="profitPercentage"
-                    key="profitPercentage"
-                  />
-                </>
-              )}
+
+              <Table.Column title="利润" dataIndex="profit" key="profit" />
+              <Table.Column
+                title="利润率"
+                dataIndex="profitPercentage"
+                key="profitPercentage"
+              />
 
               <Table.Column
                 fixed={'right'}

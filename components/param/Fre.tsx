@@ -95,7 +95,7 @@ const Component = () => {
             dataSource={data}
           >
             <Table.Column title="快递公司" dataIndex="company" key="company" />
-            <Table.Column title="价格(元)" dataIndex="kgPrice" key="kgPrice" />
+            {/* <Table.Column title="价格(元)" dataIndex="kgPrice" key="kgPrice" /> */}
 
             <Table.Column
               title="操作"
@@ -141,7 +141,7 @@ const Component = () => {
           >
             <Input className="w-full" autoComplete="off" size="large" />
           </Form.Item>
-          <Form.Item
+          {/* <Form.Item
             label="价格(元)"
             name="kgPrice"
             rules={[{ required: true }]}
@@ -152,7 +152,7 @@ const Component = () => {
               autoComplete="off"
               size="large"
             />
-          </Form.Item>
+          </Form.Item> */}
           <Form.Item>
             <Button htmlType="submit" block type="primary">
               确定
