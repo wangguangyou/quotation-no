@@ -207,44 +207,40 @@ const MainForm = ({
     initTotal(form.getFieldsValue(), excelData)
   }
 
-  const setBoxDefault = (allValues: any) => {
+  const setBoxDefault = (values: any) => {
     const {
-      row,
-      col,
-      layer,
-      materialParam,
-      primerParam,
-      length,
-      width,
-      height,
-      size,
-      badRateParam,
-      edgeProcessParam,
-      boxLength,
-      boxWidth,
-      boxHeight,
-    } = allValues
+      volume,
+      pcs,
+      weight,
+      length: cartonLength,
+      width: cartonWidth,
+      height: cartonHeight,
+    } = values
+    // const {
+    //   row,
+    //   col,
+    //   layer,
+    //   materialParam,
+    //   primerParam,
+    //   length,
+    //   width,
+    //   height,
+    //   size,
+    //   badRateParam,
+    //   edgeProcessParam,
+    //   boxLength,
+    //   boxWidth,
+    //   boxHeight,
+    // } = allValues
 
     if (!form.isFieldsTouched(['cartonLength'])) {
-      const v =
-        allValues.placement === 1
-          ? boxLength * row + badRateParam
-          : length * row + badRateParam
-      v && form.setFieldValue('cartonLength', v)
+      cartonLength && form.setFieldValue('cartonLength', cartonLength)
     }
     if (!form.isFieldsTouched(['cartonWidth'])) {
-      const v =
-        allValues.placement === 1
-          ? boxWidth * col + badRateParam
-          : width * col + badRateParam
-      v && form.setFieldValue('cartonWidth', v)
+      cartonWidth && form.setFieldValue('cartonWidth', cartonWidth)
     }
     if (!form.isFieldsTouched(['cartonHeight'])) {
-      const v =
-        allValues.placement === 1
-          ? boxHeight * layer + badRateParam
-          : height * layer + badRateParam
-      v && form.setFieldValue('cartonHeight', v)
+      cartonHeight && form.setFieldValue('cartonHeight', cartonHeight)
     }
   }
   const onValuesChange = async (changedValues: any, allValues: any) => {
@@ -264,14 +260,17 @@ const MainForm = ({
       'width',
       'height',
       'size',
-
+      'placement',
       'row',
       'col',
       'layer',
       'materialParam',
       'primerParam',
+      'boxLength',
+      'badRateParam',
+      'boxWidth',
+      'boxHeight',
     ]
-    setBoxDefault(allValues)
     const {
       row,
       col,
@@ -284,6 +283,10 @@ const MainForm = ({
       size,
       badRateParam,
       edgeProcessParam,
+      placement,
+      boxLength,
+      boxWidth,
+      boxHeight,
     } = allValues
 
     if (
@@ -291,108 +294,127 @@ const MainForm = ({
         return find in changedValues
       })
     ) {
-      if (length != null && width != null && height != null) {
-        const {
-          data: [StandardBAD, LuminousStripOverLockEP, StandardPKG],
-        } = await checkCompute({
-          length,
-          width,
-          height,
-          size,
-          packageParam: {
-            row,
-            col,
-            layer,
-          },
-          materialParam:
-            materialParam == '0'
-              ? null
-              : {
-                  mapId: materialParam,
-                },
-          primerParam:
-            primerParam == '0'
-              ? null
-              : {
-                  mapId: primerParam,
-                },
-        })
+      try {
+        if (length != null && width != null && height != null) {
+          const {
+            data: [StandardBAD, LuminousStripOverLockEP, StandardPKG],
+          } = await checkCompute({
+            length,
+            width,
+            height,
+            placement,
+            size,
 
-        setCheckData([StandardBAD, LuminousStripOverLockEP, StandardPKG])
-        if (StandardPKG?.value) {
-          const { volume, pcs, weight } = StandardPKG.value as any
-          form.setFields([
-            {
-              name: 'weight',
-              errors: [],
-              value: weight || undefined,
-            },
-            {
-              name: 'pcs',
-              errors: [],
-              value: pcs,
-            },
-            {
-              name: 'volume',
-              errors: [],
-              value: volume,
-            },
-          ])
-        }
+            badRateParam: { inputRate: badRateParam },
+            packageParam: {
+              row,
+              col,
+              layer,
 
-        if (
-          ['lenght', 'width', 'height'].find((find) => {
-            return find in changedValues
+              boxLength,
+              boxWidth,
+              boxHeight,
+            },
+            materialParam:
+              materialParam == '0'
+                ? null
+                : {
+                    mapId: materialParam,
+                  },
+            primerParam:
+              primerParam == '0'
+                ? null
+                : {
+                    mapId: primerParam,
+                  },
           })
-        ) {
-          if (LuminousStripOverLockEP.hasError) {
-            console.log(13)
-            if (edgeProcessParam === 'LuminousStripOverLockEP') {
+
+          setCheckData([StandardBAD, LuminousStripOverLockEP, StandardPKG])
+          if (StandardPKG?.value) {
+            const {
+              volume,
+              pcs,
+              weight,
+              length: cartonLength,
+              width: cartonWidth,
+              height: cartonHeight,
+            } = StandardPKG.value as any
+            setBoxDefault(StandardPKG.value)
+
+            form.setFields([
+              {
+                name: 'weight',
+                errors: [],
+                value: weight || undefined,
+              },
+              {
+                name: 'pcs',
+                errors: [],
+                value: pcs,
+              },
+              {
+                name: 'volume',
+                errors: [],
+                value: volume,
+              },
+            ])
+          }
+
+          if (
+            ['lenght', 'width', 'height'].find((find) => {
+              return find in changedValues
+            })
+          ) {
+            if (LuminousStripOverLockEP.hasError) {
+              if (edgeProcessParam === 'LuminousStripOverLockEP') {
+                form.setFields([
+                  {
+                    name: 'edgeProcessParam',
+                    errors: [LuminousStripOverLockEP.error],
+                  },
+                ])
+              }
+            } else {
               form.setFields([
                 {
                   name: 'edgeProcessParam',
-                  errors: [LuminousStripOverLockEP.error],
+                  errors: [],
                 },
               ])
             }
-          } else {
-            form.setFields([
-              {
-                name: 'edgeProcessParam',
-                errors: [],
-              },
-            ])
           }
-        }
 
-        if (
-          ['lenght', 'width', 'height', 'size'].find((find) => {
-            return find in changedValues
-          })
-        ) {
-          if ('size' in changedValues) {
-            if (checkData?.[0].hasError) return
-          }
-          if (StandardBAD.hasError) {
-            setBadRateParamDisabled(false)
-            form.setFields([
-              {
-                name: 'badRateParam',
-                errors: [StandardBAD.error],
-                value: undefined,
-              },
-            ])
-          } else {
-            setBadRateParamDisabled(true)
-            form.setFields([
-              {
-                name: 'badRateParam',
-                errors: [],
-                value: StandardBAD.value,
-              },
-            ])
+          if (
+            ['lenght', 'width', 'height', 'size'].find((find) => {
+              return find in changedValues
+            })
+          ) {
+            if ('size' in changedValues) {
+              if (checkData?.[0].hasError) return
+            }
+            if (StandardBAD.hasError) {
+              setBadRateParamDisabled(false)
+              form.setFields([
+                {
+                  name: 'badRateParam',
+                  errors: [StandardBAD.error],
+                  value: undefined,
+                },
+              ])
+            } else {
+              setBadRateParamDisabled(true)
+              form.setFields([
+                {
+                  name: 'badRateParam',
+                  errors: [],
+                  value: StandardBAD.value,
+                },
+              ])
+            }
           }
         }
+      } catch (error) {
+        console.error(error)
       }
     }
   }
