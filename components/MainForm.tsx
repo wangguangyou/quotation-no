@@ -165,7 +165,8 @@ const MainForm = ({
     excelRef.current!.setRowsData([])
   }
   const onFinish = async () => {
-    setSubmitLoading(true)
+    if (submitLoading) return
+    setSubmitLoading(() => true)
     try {
       const [values, accyItemList] = await Promise.all([
         form.validateFields(),
@@ -970,7 +971,7 @@ const MainForm = ({
                 <Form.Item
                   label="运输方式"
                   name="freightParam"
-                  rules={[{ required: true }]}
+                  rules={[{ required: false }]}
                 >
                   <Select
                     placeholder="请选择"
@@ -981,7 +982,7 @@ const MainForm = ({
                 <Form.Item
                   label="运费"
                   name="freight"
-                  rules={[{ required: true }]}
+                  rules={[{ required: false }]}
                 >
                   <InputNumber
                     min={0}
@@ -992,7 +993,7 @@ const MainForm = ({
                 <Form.Item
                   label="运输付款方式"
                   name="shippingPayment"
-                  rules={[{ required: true }]}
+                  rules={[{ required: false }]}
                 >
                   <Select
                     placeholder="请选择"
