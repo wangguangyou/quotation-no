@@ -40,6 +40,7 @@ const MainForm = ({
   const [options, setOptions] = useState<DataStoreType['options']>()
   const [checkData, setCheckData] =
     useState<unwrapResponse<typeof checkCompute>>()
+  const [submitLoading, setSubmitLoading] = useState(false)
   const [badRateParamDisabled, setBadRateParamDisabled] = useState(true)
   const [showNeedDriverChip, setShowNeedDriverChip] = useState(false)
   const [isSilkPrintPM, setIsSilkPrintPM] = useState(false)
@@ -164,28 +165,33 @@ const MainForm = ({
     excelRef.current!.setRowsData([])
   }
   const onFinish = async () => {
-    const [values, accyItemList] = await Promise.all([
-      form.validateFields(),
-      excelRef.current!.validator(),
-    ])
+    setSubmitLoading(true)
+    try {
+      const [values, accyItemList] = await Promise.all([
+        form.validateFields(),
+        excelRef.current!.validator(),
+      ])
 
-    const params = getParams(values, accyItemList)
-    const { status } = await (isEditMode
-      ? editQuotation(data.id, params)
-      : addQuotation(params))
-    if (status) {
-      messageApi.open({
-        type: 'success',
-        content: '操作成功',
-      })
+      const params = getParams(values, accyItemList)
+      const { status } = await (isEditMode
+        ? editQuotation(data.id, params)
+        : addQuotation(params))
+      if (status) {
+        messageApi.open({
+          type: 'success',
+          content: '操作成功',
+        })
 
-      if (isEditMode) {
-        return afterEdit?.()
+        if (isEditMode) {
+          return afterEdit?.()
+        }
+
+        setKey(Date.now())
+        setTotal(undefined)
+        form.resetFields()
       }
-
-      setKey(Date.now())
-      setTotal(undefined)
-      form.resetFields()
+    } finally {
+      setSubmitLoading(false)
     }
   }
   const initTotal = (values: any, excelData?: any) => {
@@ -1035,6 +1041,7 @@ const MainForm = ({
               <Button
                 onClick={onFinish}
                 shape="round"
+                loading={submitLoading}
                 size="large"
                 htmlType="submit"
                 type="primary"

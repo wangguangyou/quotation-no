@@ -272,7 +272,9 @@ const Detail = ({ data }: { data: Quotation }) => {
               </Descriptions.Item>
 
               <Descriptions.Item label="未税单价">
-                ¥{(data.costPrice + data.profit).toFixed(2)}
+                {data.profit
+                  ? `¥${(data.costPrice + data.profit).toFixed(2)}`
+                  : '-'}
               </Descriptions.Item>
               <Descriptions.Item label="税后单价">
                 ¥{data.taxPrice.toFixed(2)}

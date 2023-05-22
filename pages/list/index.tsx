@@ -315,7 +315,7 @@ const Page: NextPage = () => {
                 dataIndex="costPrice"
                 key="costPrice"
                 render={(costPrice, record: Quotation) =>
-                  (costPrice + record.profit).toFixed(2)
+                  record.profit ? (costPrice + record.profit).toFixed(2) : ''
                 }
               />
 
