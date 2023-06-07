@@ -215,7 +215,7 @@ const Detail = ({ data }: { data: Quotation }) => {
                   raw?.shippingPayment
                 )}
               </Descriptions.Item>
-              <Descriptions.Item label="运费" span={2}>
+              <Descriptions.Item label="运费" span={1}>
                 ¥{raw?.freight?.toFixed(2)}
               </Descriptions.Item>
               <Descriptions.Item label="发票类型">
@@ -267,31 +267,38 @@ const Detail = ({ data }: { data: Quotation }) => {
                 整箱体积: {values.quotationPackage.volume}
                 <br />
               </Descriptions.Item>
-              <Descriptions.Item label="成本单价">
-                ¥{data.costPrice.toFixed(2)}
-              </Descriptions.Item>
 
-              <Descriptions.Item label="未税单价">
-                {data.profit
-                  ? `¥${(data.costPrice + data.profit).toFixed(2)}`
-                  : '-'}
-              </Descriptions.Item>
-              <Descriptions.Item label="税后单价">
-                ¥{data.taxPrice.toFixed(2)}
-              </Descriptions.Item>
-              <Descriptions.Item label="利润">
-                ¥{data.profit.toFixed(2)}
-              </Descriptions.Item>
-              <Descriptions.Item label="利润率" span={2}>
-                {data.profitMargin
-                  ? `${(data.profitMargin * 100).toFixed(0)}%`
-                  : '-'}
-              </Descriptions.Item>
+              {!userState.isClerk && (
+                <>
+                  <Descriptions.Item label="成本单价">
+                    ¥{data.costPrice.toFixed(2)}
+                  </Descriptions.Item>
 
+                  <Descriptions.Item label="未税单价">
+                    {data.profit
+                      ? `¥${(data.costPrice + data.profit).toFixed(2)}`
+                      : '-'}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="税后单价">
+                    ¥{data.taxPrice.toFixed(2)}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="利润">
+                    ¥{data.profit.toFixed(2)}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="利润率" span={2}>
+                    {data.profitMargin
+                      ? `${(data.profitMargin * 100).toFixed(0)}%`
+                      : '-'}
+                  </Descriptions.Item>
+                </>
+              )}
               <Descriptions.Item label="总价">
                 ¥{data.quotedPrice.toFixed(2)}
               </Descriptions.Item>
-              <Descriptions.Item label="创建时间" span={2}>
+              <Descriptions.Item label="单价">
+                ¥{(data.quotedPrice / data.size).toFixed(2)}
+              </Descriptions.Item>
+              <Descriptions.Item label="创建时间">
                 {dayjs(data.createTime).format('YYYY-MM-DD HH:mm:ss')}
               </Descriptions.Item>
             </Descriptions>

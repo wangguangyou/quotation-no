@@ -54,7 +54,10 @@ const Excel = forwardRef<EditableCellRef, Props>(
     const [dataSource, setDataSource] = useState<readonly DataSourceType[]>(
       () => {
         if (data) {
-          return data.map((item, index) => ({ ...item, id: index + 1 }))
+          return data.map((item, index) => ({
+            ...item,
+            // , id: index + 1
+          }))
         }
         return options.map(({ value, label }) => {
           const ret: DataSourceType = {

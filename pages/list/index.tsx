@@ -123,6 +123,12 @@ const Page: NextPage = () => {
     setIsModalOpen(true)
   }
 
+  const putAgain = (record: Quotation) => {
+    setCurrentRecord(record)
+    dataState.currentRecord = record
+    router.push('/no')
+  }
+
   const rePut = async (record: Quotation) => {
     await setQuotationStatus(record.id, {
       newStatus: record.quotedStatus === 21 ? 11 : 10,
@@ -303,36 +309,50 @@ const Page: NextPage = () => {
                 dataIndex="transport"
                 key="transport"
               />
+              {!currentUserState.isClerk && (
+                <>
+                  <Table.Column
+                    title="成本单价"
+                    dataIndex="costPrice"
+                    key="costPrice"
+                    render={(costPrice) => costPrice.toFixed(2)}
+                  />
+                  <Table.Column
+                    title="未税单价"
+                    dataIndex="costPrice"
+                    key="costPrice"
+                    render={(costPrice, record: Quotation) =>
+                      record.profit
+                        ? (costPrice + record.profit).toFixed(2)
+                        : ''
+                    }
+                  />
 
-              <Table.Column
-                title="成本单价"
-                dataIndex="costPrice"
-                key="costPrice"
-                render={(costPrice) => costPrice.toFixed(2)}
-              />
-              <Table.Column
-                title="未税单价"
-                dataIndex="costPrice"
-                key="costPrice"
-                render={(costPrice, record: Quotation) =>
-                  record.profit ? (costPrice + record.profit).toFixed(2) : ''
-                }
-              />
+                  <Table.Column
+                    title="税后单价"
+                    dataIndex="taxPrice"
+                    key="taxPrice"
+                    render={(taxPrice) => taxPrice.toFixed(2)}
+                  />
 
+                  <Table.Column title="利润" dataIndex="profit" key="profit" />
+                  <Table.Column
+                    title="利润率"
+                    dataIndex="profitMargin"
+                    key="profitMargin"
+                    render={(profitMargin) =>
+                      `${(profitMargin * 100 || 0).toFixed(0)}%`
+                    }
+                  />
+                </>
+              )}
               <Table.Column
-                title="税后单价"
-                dataIndex="taxPrice"
-                key="taxPrice"
-                render={(taxPrice) => taxPrice.toFixed(2)}
-              />
-
-              <Table.Column title="利润" dataIndex="profit" key="profit" />
-              <Table.Column
-                title="利润率"
-                dataIndex="profitMargin"
-                key="profitMargin"
-                render={(profitMargin) =>
-                  `${(profitMargin * 100 || 0).toFixed(0)}%`
+                fixed={'right'}
+                title="单价"
+                dataIndex="quotedPrice"
+                key="单价"
+                render={(quotedPrice, record: Quotation) =>
+                  (quotedPrice / record.size).toFixed(2)
                 }
               />
 
@@ -350,6 +370,14 @@ const Page: NextPage = () => {
                 width={150}
                 render={(_: any, record: Quotation) => (
                   <>
+                    <Button
+                      onClick={() => putAgain(record)}
+                      size="small"
+                      type="link"
+                    >
+                      再次提交
+                    </Button>
+
                     <Button
                       onClick={() => (
                         setCurrentRecord(record), setViewVisible(true)

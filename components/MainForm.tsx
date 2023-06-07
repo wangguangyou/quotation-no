@@ -44,7 +44,11 @@ const MainForm = ({
   const [badRateParamDisabled, setBadRateParamDisabled] = useState(true)
   const [showNeedDriverChip, setShowNeedDriverChip] = useState(false)
   const [isSilkPrintPM, setIsSilkPrintPM] = useState(false)
-  const [alone, setAlone] = useState(!isEditMode)
+  const [alone, setAlone] = useState(
+    hotDataState.currentRecord
+      ? hotDataState.currentRecord.clerkComplete
+      : !isEditMode
+  )
   const [allValues, setAllValues] = useState<Record<string, any>>()
   const [total, setTotal] = useState<number>()
   const [key, setKey] = useState(0)
@@ -187,11 +191,12 @@ const MainForm = ({
           return afterEdit?.()
         }
 
-        setKey(Date.now())
         setTotal(undefined)
         form.resetFields()
       }
     } finally {
+      setExcelData(undefined)
+      setKey(Date.now())
       setSubmitLoading(false)
     }
   }
@@ -427,8 +432,9 @@ const MainForm = ({
   }
   useEffect(() => {
     ;(async () => {
-      if (data) {
-        const { data: raw } = await getQuotationParam(data.id)
+      const d = data || hotDataState.currentRecord
+      if (d) {
+        const { data: raw } = await getQuotationParam(d.id)
         initTotal(raw)
         setExcelData(raw.accyParam.accyItemList)
         form.setFieldsValue({
@@ -445,9 +451,9 @@ const MainForm = ({
           edgeProcessParam: raw.edgeProcessParam?.code || '0',
           materialParam: raw.materialParam?.mapId || 0,
           primerParam: raw.primerParam?.mapId || 0,
-          col: raw.packageParam.col,
-          row: raw.packageParam.row,
-          layer: raw.packageParam.layer,
+          col: raw.packageParam.col || undefined,
+          row: raw.packageParam.row || undefined,
+          layer: raw.packageParam.layer || undefined,
           weight: raw.packageParam.weight,
           volume: raw.packageParam.volume,
           pcs: raw.packageParam.pcs,
@@ -462,9 +468,11 @@ const MainForm = ({
           cartonLengthWidth: raw.packageParam.width,
           cartonLengthHeight: raw.packageParam.height,
         })
+        setAllValues(form.getFieldsValue())
+        dataState.currentRecord = null
       }
     })()
-  }, [data])
+  }, [data, hotDataState.currentRecord])
 
   return (
     <div className="relative">

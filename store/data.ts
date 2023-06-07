@@ -10,6 +10,7 @@ import {
 
 type DOption = Option & { payload?: Record<string, any> }
 export type Store = {
+  currentRecord: any
   statusList: { label: string; value: number }[]
   getLabel: (value: number) => string | undefined
   options?: Record<string, DOption[]>
@@ -22,6 +23,7 @@ export type Store = {
 }
 
 class State {
+  currentRecord!: null
   options: Store['options']
   statusList = [
     {
